@@ -432,23 +432,24 @@
         let mobileSelectedItemId = null; let mobileSelectedDashboardCardId = null; 
         let currentTierStructure = []; let targetEditingRowId = null; 
 
-        // Nuovi motori di gestione della fisica per Ruota e Slot Machine (Fisica Realistica)
+        // Motori stabili di gestione fisica ad accumulo
         let currentWheelUIMode = 'wheel'; 
-        let wheelLoopAnimationRequest = null; // Memorizza l'istanza di RequestAnimationFrame
+        let wheelLoopAnimationRequest = null; 
         let wheelColors = ["#ff7f7f", "#ffbf7f", "#ffdf7f", "#ffff7f", "#bfff7f", "#7fffbf", "#7fffff", "#7f9fff", "#bb86fc", "#ff7fff"];
         
         let wheelAngleRad = 0; 
         let wheelVelocity = 0; 
         let wheelTargetStopAngle = null; 
-        let wheelPhase = "idle"; // "idle", "spinning", "decelerating", "snapping"
+        let wheelPhase = "idle"; // "idle", "spinning", "decelerating"
         let slotCurrentYPos = 0;
+        let wheelSpinTimerCount = 0; // Contatore di sicurezza per lo spin libero temporizzato
 
         window.onload = function() { renderDashboard(); renderHof(); setupEventListeners(); };
 
         function switchScreen(screenId) {
             clearInterval(quizTimerInterval); 
-            cancelAnimationFrame(wheelLoopAnimationRequest); // Taglia i vecchi motori di animazione
-            wheelPhase = "idle"; wheelVelocity = 0; isWheelSpinning = false;
+            cancelAnimationFrame(wheelLoopAnimationRequest); 
+            wheelPhase = "idle"; wheelVelocity = 0;
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('play-config-screen').classList.add('hidden');
@@ -565,40 +566,26 @@
         function checkQuizAnswer(isCorrect, chosenText, questionData) { clearInterval(quizTimerInterval); if(isCorrect) { quizScore++; } else if(quizHasHeartsSystem) { quizHeartsRemaining--; updateHeartsGraphicDisplay(); } let correctObj = questionData.answers.find(a => a.correct === true); let correctText = correctObj ? correctObj.text : ''; quizUserHistory.push({ question: questionData.question, isCorrect: isCorrect, chosen: chosenText, correctAnswer: correctText, explanation: questionData.explanation || '' }); quizCurrentIndex++; if(quizHasHeartsSystem && quizHeartsRemaining <= 0) { showQuizEndScreen(true); } else if(quizCurrentIndex < activeContent.questions.length) { loadQuizQuestion(); } else { showQuizEndScreen(false); } }
         function showQuizEndScreen(isGameOver = false) { document.getElementById('end-screen-main-title').innerText = isGameOver ? "💔 GAME OVER 💔" : "📝 Quiz Completato! 📝"; switchScreen('winner-screen'); document.getElementById('winner-img').classList.add('hidden'); const placeholder = document.getElementById('winner-placeholder'); placeholder.classList.remove('hidden'); let percent = Math.round((quizScore / activeContent.questions.length) * 100); placeholder.innerText = `${percent}%`; document.getElementById('winner-name').innerText = isGameOver ? `Hai terminato le vite! Risposte corrette: ${quizScore} su ${activeContent.questions.length}.` : `Punteggio finale: ${quizScore} su ${activeContent.questions.length}.`; const subScore = document.getElementById('quiz-score-sub'); subScore.classList.remove('hidden'); if(isGameOver) subScore.innerText = "💥 Eliminato! Riprova con più attenzione."; else if(percent === 100) subScore.innerText = "🏆 Infallibile! Clamoroso punteggio pieno! ⭐"; else if(percent >= 70) subScore.innerText = "🔥 Ottimo lavoro, sei preparatissimo!"; else subScore.innerText = "👍 Sufficienza raggiunta, ma si può fare di meglio."; const reviewBox = document.getElementById('quiz-review-box'); const reviewList = document.getElementById('quiz-review-list'); reviewList.innerHTML = ''; reviewBox.classList.remove('hidden'); quizUserHistory.forEach(hist => { const itemDiv = document.createElement('div'); if(hist.isCorrect) { itemDiv.className = 'review-item correct'; itemDiv.innerHTML = `<div class="review-q-title">🟢 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">✓ Risposta data: ${hist.chosen}</div>`; } else { itemDiv.className = 'review-item wrong'; let expHTML = hist.explanation ? `<div class="review-explanation">💡 Spiegazione: ${hist.explanation}</div>` : ''; itemDiv.innerHTML = `<div class="review-q-title">🔴 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--danger-color);">❌ Scelta: ${hist.chosen}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">👉 Corretta: ${hist.correctAnswer}</div>${expHTML}`; } reviewList.appendChild(itemDiv); }); }
 
-        /* --- 🎰 3. NUOVO MOTORE CON FISICA REALE: RUOTA DELLA FORTUNA & SLOT MACHINE (Richieste dell'utente!) --- */
+        /* --- 🎡 3. MOTORE FISICO CON AGGANCIO E ACCELERAZIONE CORRETTO (Risolto!) --- */
         function playWheelGame(id) {
             activeContent = database.find(d => d.id === id); if(!activeContent) return;
             document.getElementById('wheel-game-main-title').innerText = activeContent.name;
             document.getElementById('wheel-result-display').innerText = "Clicca sotto per girare!";
-            
-            // Inizializza variabili di fisica nativa
-            wheelAngleRad = 0;
-            wheelVelocity = 0;
-            wheelTargetStopAngle = null;
-            wheelPhase = "idle";
-            slotCurrentYPos = 0;
-
-            switchScreen('wheel-game-screen');
-            changeWheelUIMode('wheel');
+            wheelAngleRad = 0; wheelVelocity = 0; wheelTargetStopAngle = null; wheelPhase = "idle"; slotCurrentYPos = 0; wheelSpinTimerCount = 0;
+            switchScreen('wheel-game-screen'); changeWheelUIMode('wheel');
         }
 
         function changeWheelUIMode(mode) {
-            cancelAnimationFrame(wheelLoopAnimationRequest);
-            wheelPhase = "idle"; wheelVelocity = 0;
-            currentWheelUIMode = mode;
-            
+            cancelAnimationFrame(wheelLoopAnimationRequest); wheelPhase = "idle"; wheelVelocity = 0; currentWheelUIMode = mode;
             document.getElementById('wheel-switch-btn-w').style.background = mode === 'wheel' ? 'var(--accent-color)' : '#333';
             document.getElementById('wheel-switch-btn-s').style.background = mode === 'slot' ? 'var(--accent-color)' : '#333';
             document.getElementById('wrapper-graphic-wheel-mode').classList.toggle('hidden', mode !== 'wheel');
             document.getElementById('wrapper-graphic-slot-mode').classList.toggle('hidden', mode !== 'slot');
-            
-            if(mode === 'wheel') drawStaticCanvasWheelEngine();
-            else setupSlotMachineStripNode();
+            if(mode === 'wheel') drawStaticCanvasWheelEngine(); else setupSlotMachineStripNode();
         }
 
         function drawStaticCanvasWheelEngine() {
-            const canvas = document.getElementById('wheel-canvas'); if(!canvas) return;
-            const ctx = canvas.getContext('2d'); const items = activeContent.items; const arcSize = (2 * Math.PI) / items.length;
+            const canvas = document.getElementById('wheel-canvas'); if(!canvas) return; const ctx = canvas.getContext('2d'); const items = activeContent.items; const arcSize = (2 * Math.PI) / items.length;
             ctx.clearRect(0, 0, 300, 300); ctx.save(); ctx.translate(150, 150); ctx.rotate(wheelAngleRad);
             items.forEach((item, idx) => {
                 ctx.fillStyle = wheelColors[idx % wheelColors.length]; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0, 0, 140, idx * arcSize, (idx + 1) * arcSize); ctx.lineTo(0,0); ctx.fill(); ctx.stroke();
@@ -614,83 +601,86 @@
             pool.forEach(item => { const cell = document.createElement('div'); cell.className = 'slot-cell'; cell.innerText = item.name; strip.appendChild(cell); });
         }
 
-        // FUNZIONE SCATTO INIZIALE / ACCELERAZIONE (Punti richiesti!)
         function triggerWheelSpinAction() {
             const pool = activeContent.items;
             document.getElementById('wheel-result-display').innerText = "⚡ Gira fortissimo...";
 
-            // Sceglie il vincitore segreto subito
+            // Estrae l'indice vincente definitivo della riga o spicchio
             const winningIndex = Math.floor(Math.random() * pool.length);
             const winnerName = pool[winningIndex].name;
 
             if (currentWheelUIMode === 'wheel') {
                 const arcSizeDeg = 360 / pool.length;
-                
-                // Centratura reale anti-bordo: calcola il centro esatto + un piccolo scarto randomico controllato per non toccare le linee nere
                 const middleSliceDeg = arcSizeDeg / 2;
-                const randomOffsetDeg = (Math.random() - 0.5) * (arcSizeDeg * 0.5); 
+                // Offset di sicurezza controllato del 40% per non farlo mai fermare sui bordi neri
+                const randomOffsetDeg = (Math.random() - 0.5) * (arcSizeDeg * 0.4); 
                 const perfectStopAngleDeg = (winningIndex * arcSizeDeg) + middleSliceDeg + randomOffsetDeg;
                 
-                // Converte l'angolo in radianti invertiti rispetto al pin (alto = 270° o -90°)
+                // Converte l'angolo in radianti corretti invertiti rispetto alla freccia in alto (270° / -90°)
                 let targetRad = ((360 - perfectStopAngleDeg - 90) % 360) * Math.PI / 180;
                 if (targetRad < 0) targetRad += 2 * Math.PI;
                 
                 wheelTargetStopAngle = targetRad;
 
                 if (wheelPhase === "idle") {
-                    // Spinta iniziale da ferma
-                    wheelVelocity = 0.4; 
+                    wheelVelocity = 0.35; // Spinta iniziale forte
+                    wheelSpinTimerCount = 0; // Resetta il timer di spin obbligatorio
                     wheelPhase = "spinning";
-                    // Avvia il loop ciclico ad altissima frequenza (RequestAnimationFrame)
+                    cancelAnimationFrame(wheelLoopAnimationRequest);
                     wheelLoopAnimationRequest = requestAnimationFrame(() => updateWheelPhysicsLoop(winnerName));
                 } else {
-                    // SE CLICCHI MENTRE GIRA: Accumula spinta cinetica e accelera ancora di più! (Richiesta!)
-                    wheelVelocity = Math.min(wheelVelocity + 0.25, 0.8);
+                    // SE CLICCHI MENTRE GIRA: Accumula spinta cinetica accelerando la ruota (Massimo tetto 0.75)!
+                    wheelVelocity = Math.min(wheelVelocity + 0.20, 0.75);
+                    wheelSpinTimerCount = 0; // Allunga il tempo di rotazione libera posticipando la frenata
                     wheelPhase = "spinning";
                 }
             } else {
-                // Versione adattata per Slot Machine fisica ad accumulo
+                // Versione Slot Machine ad accumulo fluido
                 if (wheelPhase === "idle") {
                     wheelVelocity = 35;
+                    wheelSpinTimerCount = 0;
                     wheelPhase = "spinning";
+                    cancelAnimationFrame(wheelLoopAnimationRequest);
                     wheelLoopAnimationRequest = requestAnimationFrame(() => updateSlotPhysicsLoop(winningIndex, winnerName));
                 } else {
-                    wheelVelocity = Math.min(wheelVelocity + 25, 80);
+                    wheelVelocity = Math.min(wheelVelocity + 25, 75);
+                    wheelSpinTimerCount = 0;
                     wheelPhase = "spinning";
                 }
             }
         }
 
-        // LOOP DI FISICA DELLA RUOTA (Velocità, Attrito e Suspense)
+        // SISTEMA DI CONTROLLO FISICO PER RUOTA GIRANTE
         function updateWheelPhysicsLoop(winnerName) {
-            const pool = activeContent.items;
             wheelAngleRad += wheelVelocity;
-            // Normalizza l'angolo entro i 360 gradi (2*PI)
-            wheelAngleRad = wheelAngleRad % (2 * Math.PI);
+            wheelAngleRad = wheelAngleRad % (2 * Math.PI); // Normalizza l'angolo entro i 360°
 
             if (wheelPhase === "spinning") {
-                // Applica un attrito leggerissimo per farla scorrere libera a lungo (Gira prima di fermarsi)
-                wheelVelocity *= 0.992;
+                wheelSpinTimerCount++;
                 
-                // Quando scende sotto questa soglia di velocità, avvia la fase di suspense e aggancio calcolato
-                if (wheelVelocity < 0.12) {
+                // Forza l'app a far girare liberamente la ruota per almeno 100 fotogrammi (circa 1.6 secondi).
+                // Solo superata questa soglia il freno entra in azione, garantendo che non si blocchi mai subito.
+                if (wheelSpinTimerCount > 100) {
                     wheelPhase = "decelerating";
                 }
             } else if (wheelPhase === "decelerating") {
-                // CALCOLO DI SUSPENSE (Fargli fare un paio di giri completi obbligatori prima del target)
+                // Calcola lo spazio rimanente per arrivare all'obiettivo calcolato
                 let distance = wheelTargetStopAngle - wheelAngleRad;
                 if (distance < 0) distance += 2 * Math.PI;
 
-                // Forza la ruota a fare ALMENO altri 2 giri completi (4*PI radianti) per creare suspence e ansia prima del traguardo
+                // AGGANCIO E SUSPENSE: Aggiunge 2 giri completi fissi obbligatori (4*PI) alla corsa rimanente per creare la suspense
                 let totalNeededRotation = distance + (2 * Math.PI * 2);
                 
-                wheelVelocity = totalNeededRotation * 0.022; // Rallentamento fluido verso lo stop
+                // Decelerazione fluida ad attrito proporzionale
+                wheelVelocity = totalNeededRotation * 0.022; 
+                
                 if (wheelVelocity < 0.005) {
                     wheelAngleRad = wheelTargetStopAngle;
                     wheelVelocity = 0;
                     wheelPhase = "idle";
                     document.getElementById('wheel-result-display').innerText = `🎉 ESTRATTO: ${winnerName}!`;
                     drawStaticCanvasWheelEngine();
+                    cancelAnimationFrame(wheelLoopAnimationRequest);
                     return;
                 }
             }
@@ -699,33 +689,32 @@
             wheelLoopAnimationRequest = requestAnimationFrame(() => updateWheelPhysicsLoop(winnerName));
         }
 
-        // LOOP DI FISICA DELLA SLOT MACHINE
+        // GESTIONE FISICA AD ACCUMULO PER SLOT MACHINE
         function updateSlotPhysicsLoop(winningIndex, winnerName) {
             const strip = document.getElementById('slot-strip-node');
             const cellHeight = 112;
-            slotCurrentYPos -= wheelVelocity;
-
-            // Loop infinito grafico dello strip
             let totalHeight = activeContent.items.length * cellHeight;
+
+            slotCurrentYPos -= wheelVelocity;
             if (Math.abs(slotCurrentYPos) >= totalHeight * 2) {
                 slotCurrentYPos = slotCurrentYPos % totalHeight;
             }
             strip.style.top = `${slotCurrentYPos}px`;
 
             if (wheelPhase === "spinning") {
-                wheelVelocity *= 0.985; // Decelerazione
-                if (wheelVelocity < 5) {
+                wheelSpinTimerCount++;
+                if (wheelSpinTimerCount > 90) { // Tempo di scorrimento libero
                     wheelPhase = "decelerating";
                 }
             } else if (wheelPhase === "decelerating") {
                 let targetStopY = -(winningIndex * cellHeight);
-                // Calcola lo spazio rimanente forzando lo scorrimento di almeno un rullo intero per suspense
                 let currentNormalized = slotCurrentYPos % totalHeight;
                 let diff = targetStopY - currentNormalized;
                 if (diff > 0) diff -= totalHeight;
                 
-                let neededScroll = diff - totalHeight; // Suspense bonus
-                wheelVelocity = Math.abs(neededScroll) * 0.05;
+                // Obbliga i rulli a scorrere per almeno una striscia di tabellone intera per dare suspense
+                let neededScroll = diff - totalHeight; 
+                wheelVelocity = Math.abs(neededScroll) * 0.045;
 
                 if (wheelVelocity < 0.3) {
                     slotCurrentYPos = targetStopY;
@@ -733,6 +722,7 @@
                     wheelVelocity = 0;
                     wheelPhase = "idle";
                     document.getElementById('wheel-result-display').innerText = `🎰 ESTRATTO: ${winnerName}!`;
+                    cancelAnimationFrame(wheelLoopAnimationRequest);
                     return;
                 }
             }
