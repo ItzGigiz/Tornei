@@ -231,13 +231,13 @@
                 </label>
                 <button class="btn btn-primary" onclick="addUnifiedItem()">Inserisci</button>
             </div>
-            <div style="text-align: center; margin-top: 10px;" id="bulk-label-row"><label style="font-size: 12px; color: var(--text-secondary); cursor: pointer; text-decoration: underline;"><input type="file" id="bulk-file-input" multiple accept="image/*" style="display:none;"> Caricamento rapido foto in blocco</label></div>
+            <div style="text-align: center; margin-top: 10px;" id="bulk-label-row"><label style="font-size: 12px; color: var(--text-secondary); cursor: pointer; text-decoration: underline;"><input type="file" id="bulk-file-input" multiple accept="image/*" style="display:none;"> Caricamento in blocco</label></div>
             <div class="item-list" id="item-list-container"></div>
         </div>
 
         <div class="input-group hidden" id="group-quiz-builder">
             <h3 style="text-align: left; margin-bottom: 10px; font-size:16px; color:var(--secondary-color);">Impostazioni Regole Quiz</h3>
-            <div style="display:flex; align-flex-direction:column; gap:12px; background:#252525; padding:12px; border-radius:6px; margin-bottom:20px; flex-direction:column;">
+            <div style="display:flex; background:#252525; padding:12px; border-radius:6px; margin-bottom:20px; flex-direction:column; gap:12px;">
                 <label style="font-size:14px; font-weight:bold; cursor:pointer;"><input type="checkbox" id="quiz-timer-toggle" onchange="document.getElementById('quiz-timer-seconds-row').classList.toggle('hidden', !this.checked)"> ⏱️ Attiva Timer a Tempo (Modalità Ansia)</label>
                 <div id="quiz-timer-seconds-row" class="hidden" style="display:flex; align-items:center; gap:5px; margin-left:20px;">
                     <input type="number" id="quiz-timer-input" style="width:65px; padding:6px; background:#111; color:#fff; border:1px solid #444; border-radius:4px;" value="10" min="3" max="60"> <span style="font-size:13px;">secondi per riga</span>
@@ -367,7 +367,7 @@
 
         <div id="wrapper-graphic-wheel-mode" class="hidden" style="text-align:center; position:relative; width:320px; margin:0 auto;">
             <div class="wheel-pin"></div>
-            <canvas id="wheel-canvas" width="300" height="300" class="wheel-container-graphic"></canvas>
+            <canvas id="wheel-canvas" width="300" height="300" class="wheel-canvas-graphic"></canvas>
         </div>
 
         <div id="wrapper-graphic-slot-mode" class="hidden">
@@ -432,17 +432,23 @@
         let mobileSelectedItemId = null; let mobileSelectedDashboardCardId = null; 
         let currentTierStructure = []; let targetEditingRowId = null; 
 
-        // Stati e puntatori della Ruota
+        // Nuovi motori di gestione della fisica per Ruota e Slot Machine (Fisica Realistica)
         let currentWheelUIMode = 'wheel'; 
-        let wheelSpinTimeoutInterval = null; // Memorizza l'istanza del ciclo di rotazione
+        let wheelLoopAnimationRequest = null; // Memorizza l'istanza di RequestAnimationFrame
         let wheelColors = ["#ff7f7f", "#ffbf7f", "#ffdf7f", "#ffff7f", "#bfff7f", "#7fffbf", "#7fffff", "#7f9fff", "#bb86fc", "#ff7fff"];
-        let wheelCurrentGraphicAngle = 0; // Tiene traccia della posizione dell'angolo dell'ultimo spin
+        
+        let wheelAngleRad = 0; 
+        let wheelVelocity = 0; 
+        let wheelTargetStopAngle = null; 
+        let wheelPhase = "idle"; // "idle", "spinning", "decelerating", "snapping"
+        let slotCurrentYPos = 0;
 
         window.onload = function() { renderDashboard(); renderHof(); setupEventListeners(); };
 
         function switchScreen(screenId) {
             clearInterval(quizTimerInterval); 
-            clearInterval(wheelSpinTimeoutInterval); // Ferma rotazioni se si esce
+            cancelAnimationFrame(wheelLoopAnimationRequest); // Taglia i vecchi motori di animazione
+            wheelPhase = "idle"; wheelVelocity = 0; isWheelSpinning = false;
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('play-config-screen').classList.add('hidden');
@@ -466,70 +472,24 @@
         }
 
         function renderDashboard() {
-            const activeContainer = document.getElementById('tournament-list-container');
-            const archivedContainer = document.getElementById('archived-list-container');
-            activeContainer.innerHTML = ''; archivedContainer.innerHTML = '';
+            const activeContainer = document.getElementById('tournament-list-container'); const archivedContainer = document.getElementById('archived-list-container'); activeContainer.innerHTML = ''; archivedContainer.innerHTML = '';
             let actCount = 0; let archCount = 0;
-
             database.forEach((item) => {
-                const card = document.createElement('div');
-                let coverHTML = getCoverHTML(item.cover, item.type);
-                let typeClass = item.type === 'quiz' ? 'quiz-type' : (item.type === 'wheel' ? 'wheel-type' : 'tournament-type');
-
-                let infoText = `Torneo: ${item.items ? item.items.length : 0} Elementi`;
-                if(item.type === 'quiz') infoText = `Quiz: ${item.questions.length} Domande`;
-                if(item.type === 'wheel') infoText = `Ruota/Slot: ${item.items.length} Opzioni`;
-
+                const card = document.createElement('div'); let coverHTML = getCoverHTML(item.cover, item.type); let typeClass = item.type === 'quiz' ? 'quiz-type' : (item.type === 'wheel' ? 'wheel-type' : 'tournament-type');
+                let infoText = `Torneo: ${item.items ? item.items.length : 0} Elementi`; if(item.type === 'quiz') infoText = `Quiz: ${item.questions.length} Domande`; if(item.type === 'wheel') infoText = `Ruota/Slot: ${item.items.length} Opzioni`;
                 let playClick = item.type === 'quiz' ? `playQuiz('${item.id}')` : (item.type === 'wheel' ? `playWheelGame('${item.id}')` : `openPlayConfig('${item.id}')`);
                 let tierListBtn = item.type === 'tournament' ? `<button class="btn btn-secondary" style="background:var(--secondary-color);" onclick="openTierListMode('${item.id}')">Tier List</button>` : '';
-
-                if(item.archived) {
-                    archCount++;
-                    card.className = `tournament-card archived-card ${typeClass}`;
-                    card.innerHTML = `${coverHTML}<div class="tournament-info"><h3>${item.name}</h3><p>${infoText}</p></div><div class="tournament-actions"><button class="btn btn-warning" onclick="toggleArchiveStatus('${item.id}', false)">Ripristina 📁</button><button class="btn btn-danger" onclick="deleteContent('${item.id}')">Elimina</button></div>`;
-                    archivedContainer.appendChild(card);
-                } else {
-                    actCount++;
-                    card.className = `tournament-card ${typeClass}`; card.id = `dashcard-${item.id}`;
-                    card.draggable = true;
-                    card.ondragstart = function(e) { e.dataTransfer.setData("text/card-id", item.id); };
-                    card.ondrop = function(e) { handleDashboardCardDrop(e, item.id); };
-                    card.onclick = function(e) { handleDashboardMobileSortClick(e, item.id); };
-
-                    card.innerHTML = `
-                        ${coverHTML}
-                        <div class="tournament-info"><h3>${item.name}</h3><p>${infoText}</p></div>
-                        <div class="tournament-actions" onclick="event.stopPropagation();">
-                            <button class="btn btn-primary" onclick="${playClick}">Gioca</button>
-                            ${tierListBtn}
-                            <button class="btn btn-secondary" onclick="editContent('${item.id}')">Modifica</button>
-                            <button class="btn btn-warning" onclick="toggleArchiveStatus('${item.id}', true)">Archivia 📦</button>
-                            <button class="btn btn-secondary" style="background:#555; color:#fff;" onclick="exportContent('${item.id}')">Esporta</button>
-                            <button class="btn btn-danger" onclick="deleteContent('${item.id}')">Elimina</button>
-                        </div>`;
-                    activeContainer.appendChild(card);
-                }
+                if(item.archived) { archCount++; card.className = `tournament-card archived-card ${typeClass}`; card.innerHTML = `${coverHTML}<div class="tournament-info"><h3>${item.name}</h3><p>${infoText}</p></div><div class="tournament-actions"><button class="btn btn-warning" onclick="toggleArchiveStatus('${item.id}', false)">Ripristina 📁</button><button class="btn btn-danger" onclick="deleteContent('${item.id}')">Elimina</button></div>`; archivedContainer.appendChild(card); } 
+                else { actCount++; card.className = `tournament-card ${typeClass}`; card.id = `dashcard-${item.id}`; card.draggable = true; card.ondragstart = function(e) { e.dataTransfer.setData("text/card-id", item.id); }; card.ondrop = function(e) { handleDashboardCardDrop(e, item.id); }; card.onclick = function(e) { handleDashboardMobileSortClick(e, item.id); }; card.innerHTML = `${coverHTML}<div class="tournament-info"><h3>${item.name}</h3><p>${infoText}</p></div><div class="tournament-actions" onclick="event.stopPropagation();"><button class="btn btn-primary" onclick="${playClick}">Gioca</button>${tierListBtn}<button class="btn btn-secondary" onclick="editContent('${item.id}')">Modifica</button><button class="btn btn-warning" onclick="toggleArchiveStatus('${item.id}', true)">Archivia 📦</button><button class="btn btn-secondary" style="background:#555; color:#fff;" onclick="exportContent('${item.id}')">Esporta</button><button class="btn btn-danger" onclick="deleteContent('${item.id}')">Elimina</button></div>`; activeContainer.appendChild(card); }
             });
-
-            if(actCount === 0) activeContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary); padding:10px;">Nessun contenuto attivo.</p>`;
-            if(archCount === 0) archivedContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary); padding:10px;">L'archivio è vuoto.</p>`;
+            if(actCount === 0) activeContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary); padding:10px;">Nessun contenuto attivo.</p>`; if(archCount === 0) archivedContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary); padding:10px;">L'archivio è vuoto.</p>`;
         }
-
         function allowDashboardSort(e) { e.preventDefault(); }
         function handleDashboardCardDrop(e, targetId) { e.preventDefault(); const draggedId = e.dataTransfer.getData("text/card-id"); if (!draggedId || draggedId === targetId) return; reorderDatabaseItems(draggedId, targetId); }
         function handleDashboardMobileSortClick(e, cardId) { e.stopPropagation(); if (!mobileSelectedDashboardCardId) { mobileSelectedDashboardCardId = cardId; document.getElementById(`dashcard-${cardId}`).style.borderColor = "var(--accent-color)"; } else { const oldId = mobileSelectedDashboardCardId; document.getElementById(`dashcard-${oldId}`).style.borderColor = "transparent"; mobileSelectedDashboardCardId = null; if(oldId !== cardId) { reorderDatabaseItems(oldId, cardId); } } }
         function reorderDatabaseItems(sourceId, targetId) { const sourceIndex = database.findIndex(item => item.id === sourceId); const targetIndex = database.findIndex(item => item.id === targetId); if (sourceIndex === -1 || targetIndex === -1) return; const [movedItem] = database.splice(sourceIndex, 1); database.splice(targetIndex, 0, movedItem); saveToLocalStorage(); renderDashboard(); }
 
-        function openCreateMode(type) {
-            editingContentId = null; currentFormType = type;
-            document.getElementById('setup-screen-title').innerText = type === 'quiz' ? "Configura Nuovo Quiz" : (type === 'wheel' ? "Configura Nuova Ruota/Slot" : "Configura Nuovo Torneo");
-            document.getElementById('group-tournament-builder').classList.toggle('hidden', type === 'quiz');
-            document.getElementById('group-quiz-builder').classList.toggle('hidden', type !== 'quiz');
-            document.getElementById('bulk-label-row').classList.toggle('hidden', type === 'wheel');
-            document.getElementById('builder-pool-title').innerText = type === 'wheel' ? "Opzioni della Ruota / Slot" : "Gestione Sfidanti Torneo";
-            clearSetupFields(); if(type === 'quiz') addNewQuestionToQuiz(); switchScreen('setup-screen');
-        }
-
+        function openCreateMode(type) { editingContentId = null; currentFormType = type; document.getElementById('setup-screen-title').innerText = type === 'quiz' ? "Configura Nuovo Quiz" : (type === 'wheel' ? "Configura Nuova Ruota/Slot" : "Configura Nuovo Torneo"); document.getElementById('group-tournament-builder').classList.toggle('hidden', type === 'quiz'); document.getElementById('group-quiz-builder').classList.toggle('hidden', type !== 'quiz'); document.getElementById('bulk-label-row').classList.toggle('hidden', type === 'wheel'); document.getElementById('builder-pool-title').innerText = type === 'wheel' ? "Opzioni della Ruota / Slot" : "Gestione Sfidanti Torneo"; clearSetupFields(); if(type === 'quiz') addNewQuestionToQuiz(); switchScreen('setup-screen'); }
         function setCoverAsText(val) { tempCoverSrc = val.trim(); const pb = document.getElementById('cover-preview-box'); if(tempCoverSrc) { pb.innerHTML = tempCoverSrc; } else { pb.innerHTML = currentFormType === 'quiz' ? '📝' : (currentFormType === 'wheel' ? '🎰' : '🏆'); } }
         function removeCover() { tempCoverSrc = ''; document.getElementById('cover-preview-box').innerHTML = currentFormType === 'quiz' ? '📝' : (currentFormType === 'wheel' ? '🎰' : '🏆'); document.getElementById('cover-text-input').value = ''; }
 
@@ -544,9 +504,7 @@
                 <div style="margin-bottom:15px; font-size:12px;"><label class="btn btn-secondary" style="font-size:11px; padding:4px 8px;" id="lbl-img-${qId}"><input type="file" accept="image/*" onchange="uploadQuestionImage('${qId}', this)"> 📷 Allega Immagine</label><span id="status-img-${qId}" style="margin-left:5px; color:var(--text-secondary);">${qImg ? 'Immagine Caricata ✓' : 'Solo Testo'}</span><input type="hidden" class="q-img-hidden" value="${qImg}"></div>
                 <strong style="font-size:13px; color:var(--text-secondary);">Opzioni di risposta:</strong><div class="answers-builder-container" id="answers-container-${qId}"></div><button class="btn btn-primary" style="font-size:11px; padding:4px 10px; margin-top:5px;" onclick="addAnswerRowToQuestion('${qId}')">+ Aggiungi Risposta</button>
             `;
-            container.appendChild(qBox);
-            if(loadedData && loadedData.answers) { loadedData.answers.forEach(ans => addAnswerRowToQuestion(qId, ans.text, ans.correct)); } 
-            else { addAnswerRowToQuestion(qId, '', true); addAnswerRowToQuestion(qId, '', false); }
+            container.appendChild(qBox); if(loadedData && loadedData.answers) { loadedData.answers.forEach(ans => addAnswerRowToQuestion(qId, ans.text, ans.correct)); } else { addAnswerRowToQuestion(qId, '', true); addAnswerRowToQuestion(qId, '', false); }
         }
         function addAnswerRowToQuestion(qId, text = '', isCorrect = false) { const container = document.getElementById(`answers-container-${qId}`); const rowId = 'ans_' + Math.random().toString(36).substr(2, 9); const row = document.createElement('div'); row.className = 'answer-builder-row'; row.id = rowId; row.innerHTML = `<input type="radio" name="correct_radio_${qId}" class="ans-radio-field" ${isCorrect ? 'checked' : ''}><input type="text" class="input-text ans-text-field" style="margin:0; padding:8px;" placeholder="Risposta..." value="${text}"><button class="btn btn-danger" style="padding:6px 10px;" onclick="document.getElementById('${rowId}').remove()">✕</button>`; container.appendChild(row); }
         function uploadQuestionImage(qId, input) { if(input.files && input.files[0]) { compressImage(input.files[0], 500, 0.6, function(base64) { document.getElementById(qId).querySelector('.q-img-hidden').value = base64; document.getElementById(`status-img-${qId}`).innerText = "Immagine Caricata ✓"; document.getElementById(`lbl-img-${qId}`).style.background = "var(--success-color)"; }); } }
@@ -584,10 +542,7 @@
         }
 
         function editContent(id) {
-            const item = database.find(d => d.id === id); if(!item) return;
-            editingContentId = id; currentFormType = item.type;
-            document.getElementById('setup-screen-title').innerText = item.type === 'quiz' ? "Modifica Quiz" : (item.type === 'wheel' ? "Modifica Ruota/Slot" : "Modifica Torneo");
-            document.getElementById('tournament-name').value = item.name; tempCoverSrc = item.cover || ''; const tc = document.getElementById('cover-text-input');
+            const item = database.find(d => d.id === id); if(!item) return; editingContentId = id; currentFormType = item.type; document.getElementById('setup-screen-title').innerText = item.type === 'quiz' ? "Modifica Quiz" : (item.type === 'wheel' ? "Modifica Ruota/Slot" : "Modifica Torneo"); document.getElementById('tournament-name').value = item.name; tempCoverSrc = item.cover || ''; const tc = document.getElementById('cover-text-input');
             document.getElementById('group-tournament-builder').classList.toggle('hidden', item.type === 'quiz'); document.getElementById('group-quiz-builder').classList.toggle('hidden', item.type !== 'quiz'); document.getElementById('bulk-label-row').classList.toggle('hidden', item.type === 'wheel'); document.getElementById('builder-pool-title').innerText = item.type === 'wheel' ? "Opzioni della Ruota / Slot" : "Gestione Sfidanti Torneo";
             if(item.cover) { if(item.cover.startsWith('data:image')) { document.getElementById('cover-preview-box').innerHTML = `<img src="${item.cover}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`; tc.value = ''; } else { document.getElementById('cover-preview-box').innerHTML = item.cover; tc.value = item.cover; } } else { document.getElementById('cover-preview-box').innerHTML = item.type === 'quiz' ? '📝' : (item.type === 'wheel' ? '🎰' : '🏆'); tc.value = ''; }
             if(item.type === 'tournament' || item.type === 'wheel') { currentItems = JSON.parse(JSON.stringify(item.items || [])); document.getElementById('item-list-container').innerHTML = ''; currentItems.forEach(renderItemPreview); } 
@@ -608,35 +563,43 @@
         }
         function updateTimerBarGraphic() { let percentage = (quizTimeLeft / quizMaxDuration) * 100; document.getElementById('quiz-timer-bar').style.width = `${percentage}%`; }
         function checkQuizAnswer(isCorrect, chosenText, questionData) { clearInterval(quizTimerInterval); if(isCorrect) { quizScore++; } else if(quizHasHeartsSystem) { quizHeartsRemaining--; updateHeartsGraphicDisplay(); } let correctObj = questionData.answers.find(a => a.correct === true); let correctText = correctObj ? correctObj.text : ''; quizUserHistory.push({ question: questionData.question, isCorrect: isCorrect, chosen: chosenText, correctAnswer: correctText, explanation: questionData.explanation || '' }); quizCurrentIndex++; if(quizHasHeartsSystem && quizHeartsRemaining <= 0) { showQuizEndScreen(true); } else if(quizCurrentIndex < activeContent.questions.length) { loadQuizQuestion(); } else { showQuizEndScreen(false); } }
-        function showQuizEndScreen(isGameOver = false) { document.getElementById('end-screen-main-title').innerText = isGameOver ? "💔 GAME OVER 💔" : "📝 Quiz Completato! 📝"; switchScreen('winner-screen'); document.getElementById('winner-img').classList.add('hidden'); const placeholder = document.getElementById('winner-placeholder'); placeholder.classList.remove('hidden'); let percent = Math.round((quizScore / activeContent.questions.length) * 100); placeholder.innerText = `${percent}%`; document.getElementById('winner-name').innerText = isGameOver ? `Hai terminato le vite! Risposte corrette: ${quizScore} su ${activeContent.questions.length}.` : `Punteggio finale: ${quizScore} su ${activeContent.questions.length}.`; const subScore = document.getElementById('quiz-score-sub'); subScore.classList.remove('hidden'); if(isGameOver) subScore.innerText = "💥 Eliminato! Riprova con più attenzione."; else if(percent === 100) subScore.innerText = "🏆 Infallibile! Clamoroso punteggio pieno! ⭐"; else if(percent >= 70) subScore.innerText = "🔥 Ottimo livello, siete preparatissimo!"; else subScore.innerText = "👍 Sufficienza raggiunta, ma si può fare di meglio."; const reviewBox = document.getElementById('quiz-review-box'); const reviewList = document.getElementById('quiz-review-list'); reviewList.innerHTML = ''; reviewBox.classList.remove('hidden'); quizUserHistory.forEach(hist => { const itemDiv = document.createElement('div'); if(hist.isCorrect) { itemDiv.className = 'review-item correct'; itemDiv.innerHTML = `<div class="review-q-title">🟢 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">✓ Risposta data: ${hist.chosen}</div>`; } else { itemDiv.className = 'review-item wrong'; let expHTML = hist.explanation ? `<div class="review-explanation">💡 Spiegazione: ${hist.explanation}</div>` : ''; itemDiv.innerHTML = `<div class="review-q-title">🔴 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--danger-color);">❌ Scelta: ${hist.chosen}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">👉 Corretta: ${hist.correctAnswer}</div>${expHTML}`; } reviewList.appendChild(itemDiv); }); }
+        function showQuizEndScreen(isGameOver = false) { document.getElementById('end-screen-main-title').innerText = isGameOver ? "💔 GAME OVER 💔" : "📝 Quiz Completato! 📝"; switchScreen('winner-screen'); document.getElementById('winner-img').classList.add('hidden'); const placeholder = document.getElementById('winner-placeholder'); placeholder.classList.remove('hidden'); let percent = Math.round((quizScore / activeContent.questions.length) * 100); placeholder.innerText = `${percent}%`; document.getElementById('winner-name').innerText = isGameOver ? `Hai terminato le vite! Risposte corrette: ${quizScore} su ${activeContent.questions.length}.` : `Punteggio finale: ${quizScore} su ${activeContent.questions.length}.`; const subScore = document.getElementById('quiz-score-sub'); subScore.classList.remove('hidden'); if(isGameOver) subScore.innerText = "💥 Eliminato! Riprova con più attenzione."; else if(percent === 100) subScore.innerText = "🏆 Infallibile! Clamoroso punteggio pieno! ⭐"; else if(percent >= 70) subScore.innerText = "🔥 Ottimo lavoro, sei preparatissimo!"; else subScore.innerText = "👍 Sufficienza raggiunta, ma si può fare di meglio."; const reviewBox = document.getElementById('quiz-review-box'); const reviewList = document.getElementById('quiz-review-list'); reviewList.innerHTML = ''; reviewBox.classList.remove('hidden'); quizUserHistory.forEach(hist => { const itemDiv = document.createElement('div'); if(hist.isCorrect) { itemDiv.className = 'review-item correct'; itemDiv.innerHTML = `<div class="review-q-title">🟢 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">✓ Risposta data: ${hist.chosen}</div>`; } else { itemDiv.className = 'review-item wrong'; let expHTML = hist.explanation ? `<div class="review-explanation">💡 Spiegazione: ${hist.explanation}</div>` : ''; itemDiv.innerHTML = `<div class="review-q-title">🔴 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--danger-color);">❌ Scelta: ${hist.chosen}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">👉 Corretta: ${hist.correctAnswer}</div>${expHTML}`; } reviewList.appendChild(itemDiv); }); }
 
-        /* --- 🎰 3. LOGICA DI GIOCO: RUOTA E SLOT MACHINE MODIFICATA (Punti Richiesti!) --- */
+        /* --- 🎰 3. NUOVO MOTORE CON FISICA REALE: RUOTA DELLA FORTUNA & SLOT MACHINE (Richieste dell'utente!) --- */
         function playWheelGame(id) {
             activeContent = database.find(d => d.id === id); if(!activeContent) return;
             document.getElementById('wheel-game-main-title').innerText = activeContent.name;
             document.getElementById('wheel-result-display').innerText = "Clicca sotto per girare!";
-            wheelCurrentGraphicAngle = 0; // Resetta posizione grafica iniziale
+            
+            // Inizializza variabili di fisica nativa
+            wheelAngleRad = 0;
+            wheelVelocity = 0;
+            wheelTargetStopAngle = null;
+            wheelPhase = "idle";
+            slotCurrentYPos = 0;
+
             switchScreen('wheel-game-screen');
             changeWheelUIMode('wheel');
         }
 
         function changeWheelUIMode(mode) {
-            clearInterval(wheelSpinTimeoutInterval); // Ferma cicli precedenti in corso
-            isWheelSpinning = false;
+            cancelAnimationFrame(wheelLoopAnimationRequest);
+            wheelPhase = "idle"; wheelVelocity = 0;
             currentWheelUIMode = mode;
+            
             document.getElementById('wheel-switch-btn-w').style.background = mode === 'wheel' ? 'var(--accent-color)' : '#333';
             document.getElementById('wheel-switch-btn-s').style.background = mode === 'slot' ? 'var(--accent-color)' : '#333';
             document.getElementById('wrapper-graphic-wheel-mode').classList.toggle('hidden', mode !== 'wheel');
             document.getElementById('wrapper-graphic-slot-mode').classList.toggle('hidden', mode !== 'slot');
             
-            if(mode === 'wheel') drawStaticCanvasWheelEngine(wheelCurrentGraphicAngle);
+            if(mode === 'wheel') drawStaticCanvasWheelEngine();
             else setupSlotMachineStripNode();
         }
 
-        function drawStaticCanvasWheelEngine(currentRotationAngle) {
+        function drawStaticCanvasWheelEngine() {
             const canvas = document.getElementById('wheel-canvas'); if(!canvas) return;
             const ctx = canvas.getContext('2d'); const items = activeContent.items; const arcSize = (2 * Math.PI) / items.length;
-            ctx.clearRect(0, 0, 300, 300); ctx.save(); ctx.translate(150, 150); ctx.rotate(currentRotationAngle);
+            ctx.clearRect(0, 0, 300, 300); ctx.save(); ctx.translate(150, 150); ctx.rotate(wheelAngleRad);
             items.forEach((item, idx) => {
                 ctx.fillStyle = wheelColors[idx % wheelColors.length]; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0, 0, 140, idx * arcSize, (idx + 1) * arcSize); ctx.lineTo(0,0); ctx.fill(); ctx.stroke();
                 ctx.save(); ctx.fillStyle = "#000000"; ctx.font = "bold 12px sans-serif"; ctx.rotate(idx * arcSize + arcSize / 2); ctx.textAlign = "right";
@@ -646,66 +609,135 @@
         }
 
         function setupSlotMachineStripNode() {
-            const strip = document.getElementById('slot-strip-node'); strip.innerHTML = ''; strip.style.top = '0px'; strip.style.transition = 'none';
-            let pool = [...activeContent.items]; while(pool.length < 15) { pool = pool.concat(activeContent.items); }
+            const strip = document.getElementById('slot-strip-node'); strip.innerHTML = ''; strip.style.top = '0px';
+            let pool = [...activeContent.items]; while(pool.length < 25) { pool = pool.concat(activeContent.items); }
             pool.forEach(item => { const cell = document.createElement('div'); cell.className = 'slot-cell'; cell.innerText = item.name; strip.appendChild(cell); });
         }
 
+        // FUNZIONE SCATTO INIZIALE / ACCELERAZIONE (Punti richiesti!)
         function triggerWheelSpinAction() {
-            // Se sta già girando, resettiamo e forziamo un nuovo giro all'istante (Richiesta!)
-            clearInterval(wheelSpinTimeoutInterval);
-            isWheelSpinning = true;
-            document.getElementById('wheel-result-display').innerText = "⚡ Calcolo in corso...";
-            
             const pool = activeContent.items;
+            document.getElementById('wheel-result-display').innerText = "⚡ Gira fortissimo...";
+
+            // Sceglie il vincitore segreto subito
             const winningIndex = Math.floor(Math.random() * pool.length);
             const winnerName = pool[winningIndex].name;
 
-            if(currentWheelUIMode === 'wheel') {
-                const arcAngleSizeDeg = 360 / pool.length;
+            if (currentWheelUIMode === 'wheel') {
+                const arcSizeDeg = 360 / pool.length;
                 
-                // CALCOLO CENTRATO REALE (Risolto! Non si ferma mai sulla riga nera di bordo):
-                // Calcola il centro esatto della fetta e aggiunge un offset casuale di sicurezza (+/- 30% dal centro) per evitare la linea di divisione nera
-                const middleSlicePoint = arcAngleSizeDeg / 2;
-                const randomSafetyOffset = (Math.random() - 0.5) * (arcAngleSizeDeg * 0.6); 
-                const perfectInnerAngle = middleSlicePoint + randomSafetyOffset;
+                // Centratura reale anti-bordo: calcola il centro esatto + un piccolo scarto randomico controllato per non toccare le linee nere
+                const middleSliceDeg = arcSizeDeg / 2;
+                const randomOffsetDeg = (Math.random() - 0.5) * (arcSizeDeg * 0.5); 
+                const perfectStopAngleDeg = (winningIndex * arcSizeDeg) + middleSliceDeg + randomOffsetDeg;
+                
+                // Converte l'angolo in radianti invertiti rispetto al pin (alto = 270° o -90°)
+                let targetRad = ((360 - perfectStopAngleDeg - 90) % 360) * Math.PI / 180;
+                if (targetRad < 0) targetRad += 2 * Math.PI;
+                
+                wheelTargetStopAngle = targetRad;
 
-                // Calcolo complessivo gradi per l'indice (invertito perché la ruota gira in senso orario rispetto al pin fisso in alto a 270°)
-                let targetAngles = (360 * 5) + (360 - (winningIndex * arcAngleSizeDeg) - perfectInnerAngle - 90);
-                let currentPos = wheelCurrentGraphicAngle * 180 / Math.PI; // Ripartiamo dall'angolazione grafica precedente
-                
-                wheelSpinTimeoutInterval = setInterval(() => {
-                    currentPos += (targetAngles - currentPos) * 0.05; 
-                    wheelCurrentGraphicAngle = currentPos * Math.PI / 180; // Aggiorna stato dell'angolo
-                    drawStaticCanvasWheelEngine(wheelCurrentGraphicAngle);
-                    
-                    if(targetAngles - currentPos < 0.2) {
-                        clearInterval(wheelSpinTimeoutInterval);
-                        document.getElementById('wheel-result-display').innerText = `🎉 ESTRATTO: ${winnerName}!`;
-                        isWheelSpinning = false;
-                    }
-                }, 20);
+                if (wheelPhase === "idle") {
+                    // Spinta iniziale da ferma
+                    wheelVelocity = 0.4; 
+                    wheelPhase = "spinning";
+                    // Avvia il loop ciclico ad altissima frequenza (RequestAnimationFrame)
+                    wheelLoopAnimationRequest = requestAnimationFrame(() => updateWheelPhysicsLoop(winnerName));
+                } else {
+                    // SE CLICCHI MENTRE GIRA: Accumula spinta cinetica e accelera ancora di più! (Richiesta!)
+                    wheelVelocity = Math.min(wheelVelocity + 0.25, 0.8);
+                    wheelPhase = "spinning";
+                }
             } else {
-                // Reset della transizione slot per permettere lanci consecutivi liberi (Richiesta!)
-                const strip = document.getElementById('slot-strip-node');
-                strip.style.transition = 'none';
-                strip.style.top = '0px';
-                
-                // Piccolo defer di 40ms per forzare il riavvio del thread CSS di animazione del rullo
-                setTimeout(() => {
-                    let cellHeight = 112;
-                    let stopTop = -(winningIndex * cellHeight);
-                    strip.style.transition = 'top 2.5s cubic-bezier(0.1, 0.8, 0.1, 1)';
-                    strip.style.top = `${stopTop - (cellHeight * pool.length)}px`; 
-                    
-                    wheelSpinTimeoutInterval = setTimeout(() => {
-                        strip.style.transition = 'none';
-                        strip.style.top = `${stopTop}px`;
-                        document.getElementById('wheel-result-display').innerText = `🎰 ESTRATTO: ${winnerName}!`;
-                        isWheelSpinning = false;
-                    }, 2550);
-                }, 40);
+                // Versione adattata per Slot Machine fisica ad accumulo
+                if (wheelPhase === "idle") {
+                    wheelVelocity = 35;
+                    wheelPhase = "spinning";
+                    wheelLoopAnimationRequest = requestAnimationFrame(() => updateSlotPhysicsLoop(winningIndex, winnerName));
+                } else {
+                    wheelVelocity = Math.min(wheelVelocity + 25, 80);
+                    wheelPhase = "spinning";
+                }
             }
+        }
+
+        // LOOP DI FISICA DELLA RUOTA (Velocità, Attrito e Suspense)
+        function updateWheelPhysicsLoop(winnerName) {
+            const pool = activeContent.items;
+            wheelAngleRad += wheelVelocity;
+            // Normalizza l'angolo entro i 360 gradi (2*PI)
+            wheelAngleRad = wheelAngleRad % (2 * Math.PI);
+
+            if (wheelPhase === "spinning") {
+                // Applica un attrito leggerissimo per farla scorrere libera a lungo (Gira prima di fermarsi)
+                wheelVelocity *= 0.992;
+                
+                // Quando scende sotto questa soglia di velocità, avvia la fase di suspense e aggancio calcolato
+                if (wheelVelocity < 0.12) {
+                    wheelPhase = "decelerating";
+                }
+            } else if (wheelPhase === "decelerating") {
+                // CALCOLO DI SUSPENSE (Fargli fare un paio di giri completi obbligatori prima del target)
+                let distance = wheelTargetStopAngle - wheelAngleRad;
+                if (distance < 0) distance += 2 * Math.PI;
+
+                // Forza la ruota a fare ALMENO altri 2 giri completi (4*PI radianti) per creare suspence e ansia prima del traguardo
+                let totalNeededRotation = distance + (2 * Math.PI * 2);
+                
+                wheelVelocity = totalNeededRotation * 0.022; // Rallentamento fluido verso lo stop
+                if (wheelVelocity < 0.005) {
+                    wheelAngleRad = wheelTargetStopAngle;
+                    wheelVelocity = 0;
+                    wheelPhase = "idle";
+                    document.getElementById('wheel-result-display').innerText = `🎉 ESTRATTO: ${winnerName}!`;
+                    drawStaticCanvasWheelEngine();
+                    return;
+                }
+            }
+
+            drawStaticCanvasWheelEngine();
+            wheelLoopAnimationRequest = requestAnimationFrame(() => updateWheelPhysicsLoop(winnerName));
+        }
+
+        // LOOP DI FISICA DELLA SLOT MACHINE
+        function updateSlotPhysicsLoop(winningIndex, winnerName) {
+            const strip = document.getElementById('slot-strip-node');
+            const cellHeight = 112;
+            slotCurrentYPos -= wheelVelocity;
+
+            // Loop infinito grafico dello strip
+            let totalHeight = activeContent.items.length * cellHeight;
+            if (Math.abs(slotCurrentYPos) >= totalHeight * 2) {
+                slotCurrentYPos = slotCurrentYPos % totalHeight;
+            }
+            strip.style.top = `${slotCurrentYPos}px`;
+
+            if (wheelPhase === "spinning") {
+                wheelVelocity *= 0.985; // Decelerazione
+                if (wheelVelocity < 5) {
+                    wheelPhase = "decelerating";
+                }
+            } else if (wheelPhase === "decelerating") {
+                let targetStopY = -(winningIndex * cellHeight);
+                // Calcola lo spazio rimanente forzando lo scorrimento di almeno un rullo intero per suspense
+                let currentNormalized = slotCurrentYPos % totalHeight;
+                let diff = targetStopY - currentNormalized;
+                if (diff > 0) diff -= totalHeight;
+                
+                let neededScroll = diff - totalHeight; // Suspense bonus
+                wheelVelocity = Math.abs(neededScroll) * 0.05;
+
+                if (wheelVelocity < 0.3) {
+                    slotCurrentYPos = targetStopY;
+                    strip.style.top = `${slotCurrentYPos}px`;
+                    wheelVelocity = 0;
+                    wheelPhase = "idle";
+                    document.getElementById('wheel-result-display').innerText = `🎰 ESTRATTO: ${winnerName}!`;
+                    return;
+                }
+            }
+
+            wheelLoopAnimationRequest = requestAnimationFrame(() => updateSlotPhysicsLoop(winningIndex, winnerName));
         }
 
         /* --- INDOVINA CHI O QUALE --- */
@@ -734,7 +766,7 @@
         function renderCardData(side, item) { const ie = document.getElementById(`img-${side}`); const pe = document.getElementById(`placeholder-${side}`); const ne = document.getElementById(`name-${side}`); ne.innerText = item.name; if(item.src) { ie.src = item.src; ie.classList.remove('hidden'); pe.classList.add('hidden'); } else { ie.src = ''; ie.classList.add('hidden'); pe.innerText = item.name; pe.classList.remove('hidden'); } }
         function selectWinner(side) { const w = currentRound[currentMatchIndex + side]; nextRound.push(w); currentMatchIndex += 2; setupMatch(); }
         function executeRandomTiebreaker() { const vsNode = document.getElementById('vs-text-node'); vsNode.innerText = "🎲 ..."; vsNode.style.color = "var(--warning-color)"; setTimeout(() => { const coinFlip = Math.random() < 0.5; if (coinFlip) { vsNode.innerText = "⬅️ FRECCIA"; vsNode.style.color = "var(--secondary-color)"; } else { vsNode.innerText = "FRECCIA ➡️"; vsNode.style.color = "var(--secondary-color)"; } }, 400); }
-        function quitActiveGameProcess() { if (confirm("Vuoi abbandonare la partita?")) { clearInterval(quizTimerInterval); clearInterval(wheelSpinTimeoutInterval); activeContent = null; switchScreen('dashboard-screen'); renderDashboard(); } }
+        function quitActiveGameProcess() { if (confirm("Vuoi abbandonare la partita?")) { clearInterval(quizTimerInterval); cancelAnimationFrame(wheelLoopAnimationRequest); wheelPhase = "idle"; activeContent = null; switchScreen('dashboard-screen'); renderDashboard(); } }
         function showWinner(w) { document.getElementById('end-screen-main-title').innerText = "🏆 Vincitore Assoluto! 🏆"; switchScreen('winner-screen'); document.getElementById('winner-name').innerText = w.name; const wi = document.getElementById('winner-img'); const wp = document.getElementById('winner-placeholder'); if(w.src) { wi.src = w.src; wi.classList.remove('hidden'); wp.classList.add('hidden'); } else { wi.src = ''; wi.classList.add('hidden'); wp.innerText = w.name; wp.classList.remove('hidden'); } }
 
         /* --- UTILS --- */
