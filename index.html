@@ -49,15 +49,17 @@
         .tournament-card {
             background: #2a2a2a; padding: 15px; border-radius: 8px; display: flex;
             gap: 15px; align-items: center; border-left: 4px solid var(--accent-color);
+            cursor: grab; transition: transform 0.15s, border-color 0.2s; user-select: none;
         }
+        .tournament-card:active { cursor: grabbing; transform: scale(0.99); opacity: 0.8; }
         .tournament-card.quiz-type { border-left-color: var(--secondary-color); }
-        .tournament-card.archived-card { border-left-color: var(--warning-color); opacity: 0.8; }
+        .tournament-card.archived-card { border-left-color: var(--warning-color); opacity: 0.8; cursor: default; }
         .tournament-cover-thumb {
             width: 70px; height: 70px; object-fit: cover; border-radius: 6px; background: #333;
             display: flex; align-items: center; justify-content: center; font-size: 24px;
-            flex-shrink: 0; border: 1px solid #444; text-align: center; word-break: break-word; overflow: hidden; padding: 4px; box-sizing: border-box; font-weight: bold;
+            flex-shrink: 0; border: 1px solid #444; text-align: center; word-break: break-word; overflow: hidden; padding: 4px; box-sizing: border-box; font-weight: bold; pointer-events: none;
         }
-        .tournament-info { flex-grow: 1; }
+        .tournament-info { flex-grow: 1; pointer-events: none; }
         .tournament-info h3 { text-align: left; margin: 0 0 5px 0; color: #fff; }
         .tournament-info p { margin: 0; font-size: 13px; color: var(--text-secondary); }
         .tournament-actions { display: flex; flex-direction: column; gap: 5px; }
@@ -177,7 +179,7 @@
         </div>
         
         <h2>Contenuti Principali</h2>
-        <div class="tournament-list" id="tournament-list-container"></div>
+        <div class="tournament-list" id="tournament-list-container" ondragover="allowDashboardSort(event)"></div>
 
         <div style="margin-top: 30px; background: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #333;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -393,6 +395,7 @@
         let quizTimerInterval = null; let quizTimeLeft = 0; let quizMaxDuration = 10;
         let selectedActivityMode = 'tournament'; 
         let mobileSelectedItemId = null; 
+        let mobileSelectedDashboardCardId = null; // Puntatore mobile per ordinamento dashboard
 
         let currentTierStructure = [];
         let targetEditingRowId = null; 
@@ -421,13 +424,14 @@
             return `<div class="tournament-cover-thumb">${type === 'quiz' ? '📝' : '🏆'}</div>`;
         }
 
+        /* --- 📋 RENDERIZZAZIONE DASHBOARD CON FUNZIONI DRAG & SORT ATTIVE (Novità!) --- */
         function renderDashboard() {
             const activeContainer = document.getElementById('tournament-list-container');
             const archivedContainer = document.getElementById('archived-list-container');
             activeContainer.innerHTML = ''; archivedContainer.innerHTML = '';
             let actCount = 0; let archCount = 0;
 
-            database.forEach(item => {
+            database.forEach((item, index) => {
                 const card = document.createElement('div');
                 let coverHTML = getCoverHTML(item.cover, item.type);
                 let typeClass = item.type === 'quiz' ? 'quiz-type' : '';
@@ -451,10 +455,20 @@
                 } else {
                     actCount++;
                     card.className = `tournament-card ${typeClass}`;
+                    card.id = `dashcard-${item.id}`;
+                    
+                    // Attiva il Drag and Drop nativo per PC
+                    card.draggable = true;
+                    card.ondragstart = function(e) { e.dataTransfer.setData("text/card-id", item.id); };
+                    card.ondrop = function(e) { handleDashboardCardDrop(e, item.id); };
+                    
+                    // Attiva il click adattivo per smartphone
+                    card.onclick = function(e) { handleDashboardMobileSortClick(e, item.id); };
+
                     card.innerHTML = `
                         ${coverHTML}
                         <div class="tournament-info"><h3>${item.name}</h3><p>${infoText}</p></div>
-                        <div class="tournament-actions">
+                        <div class="tournament-actions" onclick="event.stopPropagation(); /* blocca riordinamento se cliccano i pulsanti */">
                             <button class="btn btn-primary" onclick="${playClick}">Gioca</button>
                             ${tierListBtn}
                             <button class="btn btn-secondary" onclick="editContent('${item.id}')">Modifica</button>
@@ -469,6 +483,53 @@
             if(actCount === 0) activeContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary); padding:10px;">Nessun contenuto attivo.</p>`;
             if(archCount === 0) archivedContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary); padding:10px;">L'archivio è vuoto.</p>`;
         }
+
+        // Gestione del Drag and Drop su PC per la Dashboard
+        function allowDashboardSort(e) { e.preventDefault(); }
+        
+        function handleDashboardCardDrop(e, targetId) {
+            e.preventDefault();
+            const draggedId = e.dataTransfer.getData("text/card-id");
+            if (!draggedId || draggedId === targetId) return;
+
+            reorderDatabaseItems(draggedId, targetId);
+        }
+
+        // Gestione dell'ordinamento tramite click sequenziale su Smartphone
+        function handleDashboardMobileSortClick(e, cardId) {
+            e.stopPropagation();
+            
+            // Se non c'è nessuna tessera selezionata, seleziona questa
+            if (!mobileSelectedDashboardCardId) {
+                mobileSelectedDashboardCardId = cardId;
+                document.getElementById(`dashcard-${cardId}`).style.borderColor = "var(--accent-color)";
+            } else {
+                // Se c'è già una tessera selezionata, sposta la vecchia vicino a questa nuova cliccata
+                const oldId = mobileSelectedDashboardCardId;
+                document.getElementById(`dashcard-${oldId}`).style.borderColor = "transparent";
+                mobileSelectedDashboardCardId = null; // svuota
+
+                if(oldId !== cardId) {
+                    reorderDatabaseItems(oldId, cardId);
+                }
+            }
+        }
+
+        // Funzione core che sposta i dati nell'array e risalva la memoria
+        function reorderDatabaseItems(sourceId, targetId) {
+            const sourceIndex = database.findIndex(item => item.id === sourceId);
+            const targetIndex = database.findIndex(item => item.id === targetId);
+            
+            if (sourceIndex === -1 || targetIndex === -1) return;
+
+            // Rimuove l'oggetto dalla vecchia posizione e lo inserisce nella nuova
+            const [movedItem] = database.splice(sourceIndex, 1);
+            database.splice(targetIndex, 0, movedItem);
+
+            saveToLocalStorage();
+            renderDashboard();
+        }
+
 
         function registerHofWinner(itemName, tournamentName) {
             let record = hof.find(h => h.name.toLowerCase() === itemName.toLowerCase() && h.tournament.toLowerCase() === tournamentName.toLowerCase());
@@ -751,7 +812,6 @@
 
         /* --- ARENA TORNEO --- */
         function setupMatch() { 
-            // Ripristina la scritta "VS" standard se lo scontro precedente era andato allo spareggio
             document.getElementById('vs-text-node').innerText = "VS";
             document.getElementById('vs-text-node').style.color = "var(--accent-color)";
 
@@ -759,41 +819,37 @@
             if (currentRound.length === 1) { registerHofWinner(currentRound[0].name, activeContent.name); showWinner(currentRound[0]); return; } 
             if (currentMatchIndex === currentRound.length - 1) { nextRound.push(currentRound[currentMatchIndex]); currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; setupMatch(); return; } 
             
-            let rt = `Fase a eliminazione`;
-            if(currentRound.length === 2) rt = "🏆 FINALISSIMA 🏆"; else if(currentRound.length === 4) rt = "🏁 Semifinale 🏁"; else if(currentRound.length === 8) rt = "Quarti di Finale"; else rt = `Turno ${roundCount} - Rimasti: ${currentRound.length}`; 
-            document.getElementById('round-title').innerText = rt; 
+            let phaseLabel = `Turno ${roundCount}`; 
+            const remaining = currentRound.length;
+
+            if (remaining === 2) { phaseLabel = "🏆 FINALISSIMA 🏆"; } 
+            else if (remaining === 4) { phaseLabel = "🏁 Semifinale 🏁"; } 
+            else if (remaining === 8) { phaseLabel = "🎯 Quarti di Finale 🎯"; } 
+            else if (remaining === 16) { phaseLabel = "🎖️ Ottavi di Finale 🎖️"; } 
+            else if (remaining === 32) { phaseLabel = "⚔️ Sedicesimi di Finale ⚔️"; } 
+            else { phaseLabel = `Turno ${roundCount} — Elementi rimasti: ${remaining}`; }
+
+            document.getElementById('round-title').innerText = phaseLabel; 
             renderCardData('left', currentRound[currentMatchIndex]); renderCardData('right', currentRound[currentMatchIndex + 1]); 
         }
         
         function renderCardData(side, item) { const ie = document.getElementById(`img-${side}`); const pe = document.getElementById(`placeholder-${side}`); const ne = document.getElementById(`name-${side}`); ne.innerText = item.name; if(item.src) { ie.src = item.src; ie.classList.remove('hidden'); pe.classList.add('hidden'); } else { ie.src = ''; ie.classList.add('hidden'); pe.innerText = item.name; pe.classList.remove('hidden'); } }
         function selectWinner(side) { const w = currentRound[currentMatchIndex + side]; nextRound.push(w); currentMatchIndex += 2; setupMatch(); }
         
-        /* --- ⚖️ FUNZIONE SPAREGGIO CASUALE (Richiesta 1!) --- */
+        /* --- SPAREGGIO CASUALE --- */
         function executeRandomTiebreaker() {
-            const vsNode = document.getElementById('vs-text-node');
-            vsNode.innerText = "🎲 ...";
-            vsNode.style.color = "var(--warning-color)";
-            
-            // Piccola animazione di calcolo di 400 millisecondi per creare suspense tra gli amici
+            const vsNode = document.getElementById('vs-text-node'); vsNode.innerText = "🎲 ..."; vsNode.style.color = "var(--warning-color)";
             setTimeout(() => {
-                const coinFlip = Math.random() < 0.5; // 50% di probabilità destra o sinistra
-                if (coinFlip) {
-                    vsNode.innerText = "⬅️ FRECCIA";
-                    vsNode.style.color = "var(--secondary-color)";
-                } else {
-                    vsNode.innerText = "FRECCIA ➡️";
-                    vsNode.style.color = "var(--secondary-color)";
-                }
+                const coinFlip = Math.random() < 0.5; 
+                if (coinFlip) { vsNode.innerText = "⬅️ FRECCIA"; vsNode.style.color = "var(--secondary-color)"; } 
+                else { vsNode.innerText = "FRECCIA ➡️"; vsNode.style.color = "var(--secondary-color)"; }
             }, 400);
         }
 
-        /* --- 🏳️ FUNZIONE INTERRUZIONE E ABBANDONO UNIVERSALE (Richiesta 2!) --- */
+        /* --- INTERRUZIONE E ABBANDONO UNIVERSALE --- */
         function quitActiveGameProcess() {
             if (confirm("Vuoi davvero abbandonare la partita in corso e tornare alla Dashboard principale?")) {
-                clearInterval(quizTimerInterval); // Sicurezza: ferma eventuali timer attivi
-                activeContent = null;
-                switchScreen('dashboard-screen');
-                renderDashboard();
+                clearInterval(quizTimerInterval); activeContent = null; switchScreen('dashboard-screen'); renderDashboard();
             }
         }
 
@@ -811,11 +867,17 @@
         function deleteContent(id) { if(confirm("Eliminare definitivamente?")) { database = database.filter(d => d.id !== id); saveToLocalStorage(); renderDashboard(); } }
         function exportContent(id) { const item = database.find(d => d.id === id); if(!item) return; const blob = new Blob([JSON.stringify(item)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${item.name.toLowerCase().replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
         function saveToLocalStorage() { try { localStorage.setItem('app_database_items', JSON.stringify(database)); return true; } catch(e) { alert("Spazio browser esaurito!"); return false; } }
+        
         function setupEventListeners() {
             document.getElementById('cover-input').addEventListener('change', function(e) { if(e.target.files[0]) { compressImage(e.target.files[0], 200, 0.6, function(base64) { tempCoverSrc = base64; document.getElementById('cover-preview-box').innerHTML = `<img src="${base64}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`; document.getElementById('cover-text-input').value = ''; }); } });
             document.getElementById('bulk-file-input').addEventListener('change', function(e) { const files = e.target.files; for(let i=0; i<files.length; i++) { compressImage(files[i], 500, 0.6, function(base64) { const clean = files[i].name.split('.').slice(0, -1).join('.'); const item = { id: 'item_' + Math.random().toString(36).substr(2, 9), name: clean, src: base64 }; currentItems.push(item); renderItemPreview(item); }); } });
             document.getElementById('import-input').addEventListener('change', function(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(event) { try { const imported = JSON.parse(event.target.result); if(imported.name && (Array.isArray(imported.items) || Array.isArray(imported.questions))) { imported.id = 'imported_' + Math.random().toString(36).substr(2, 9); imported.archived = false; database.push(imported); saveToLocalStorage(); renderDashboard(); alert("Importato correttamente!"); } else { alert("File invalido."); } } catch(err) { alert("Errore file JSON."); } }; reader.readAsText(file); });
-            document.onclick = function() { if(mobileSelectedItemId) { const el = document.getElementById(`drag-${mobileSelectedItemId}`); if(el) el.style.border = "1px solid #444"; mobileSelectedItemId = null; } };
+            
+            // Ripulisce i puntatori click se si tocca lo sfondo vuoto
+            document.onclick = function() { 
+                if(mobileSelectedItemId) { const el = document.getElementById(`drag-${mobileSelectedItemId}`); if(el) el.style.border = "1px solid #444"; mobileSelectedItemId = null; } 
+                if(mobileSelectedDashboardCardId) { const card = document.getElementById(`dashcard-${mobileSelectedDashboardCardId}`); if(card) card.style.borderColor = "transparent"; mobileSelectedDashboardCardId = null; }
+            };
         }
         function setupItemFileListener() { document.getElementById('item-file-input').addEventListener('change', function(e) { if(e.target.files[0]) { compressImage(e.target.files[0], 500, 0.6, function(base64) { tempItemSrc = base64; document.getElementById('item-file-label').innerHTML = `<input type="file" id="item-file-input" accept="image/*"> Caricata ✓`; document.getElementById('item-file-label').style.background = "var(--secondary-color)"; setupItemFileListener(); }); } }); }
         function compressImage(file, maxSize, quality, callback) { const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } } canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); callback(canvas.toDataURL('image/jpeg', quality)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
