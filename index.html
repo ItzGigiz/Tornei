@@ -79,6 +79,10 @@
         .btn-danger { background: var(--danger-color); color: #fff; }
         .btn-block { display: block; width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;}
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        /* Tasto di abbandono fisso in alto nei giochi */
+        .btn-quit-game { background: #333; color: var(--danger-color); border: 1px solid var(--danger-color); margin-bottom: 15px; width: auto; display: inline-block; }
+        .btn-quit-game:hover { background: var(--danger-color); color: white; }
 
         /* Item Grid Previews */
         .item-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 15px; max-height: 280px; overflow-y: auto; }
@@ -270,15 +274,23 @@
     </div>
 
     <div class="container hidden" id="game-screen">
-        <div class="round-title" id="game-tournament-title" style="color: var(--accent-color); font-weight: bold;">Torneo</div>
-        <div class="round-title" id="round-title">Fase</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="round-title" id="game-tournament-title" style="color: var(--accent-color); font-weight: bold; margin:0;">Torneo</div>
+            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona Partita</button>
+        </div>
+        <div class="round-title" id="round-title" style="margin-top: 15px;">Fase</div>
         <div class="matchup-container">
             <div class="card" id="card-left" onclick="selectWinner(0)">
                 <img id="img-left" src="" alt="" class="hidden">
                 <div id="placeholder-left" class="card-placeholder hidden"></div>
                 <div class="card-name" id="name-left"></div>
             </div>
-            <div class="vs">VS</div>
+            
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 15px;">
+                <div class="vs" id="vs-text-node">VS</div>
+                <button class="btn btn-warning" id="tiebreaker-btn" style="padding: 6px 10px; font-size:12px; white-space:nowrap;" onclick="executeRandomTiebreaker()">⚖️ Spareggio Casuale</button>
+            </div>
+            
             <div class="card" id="card-right" onclick="selectWinner(1)">
                 <img id="img-right" src="" alt="" class="hidden">
                 <div id="placeholder-right" class="card-placeholder hidden"></div>
@@ -288,7 +300,10 @@
     </div>
 
     <div class="container hidden" id="quiz-game-screen">
-        <div class="round-title" id="quiz-game-title" style="color: var(--secondary-color); font-weight: bold;">Quiz</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
+            <div class="round-title" id="quiz-game-title" style="color: var(--secondary-color); font-weight: bold; margin:0;">Quiz</div>
+            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona</button>
+        </div>
         <div id="quiz-timer-container" class="timer-track hidden"><div id="quiz-timer-bar" class="timer-bar"></div></div>
         <div id="quiz-progress-bar" style="text-align:center; margin-bottom:15px; color:var(--text-secondary);">Domanda 1 di X</div>
         
@@ -301,8 +316,11 @@
     </div>
 
     <div class="container hidden" id="tierlist-screen" style="max-width:900px;">
-        <h1 id="tierlist-title">Classifica Tier List</h1>
-        <p style="text-align:center; font-size:12px; color:var(--text-secondary); margin-top:-10px;">Smista gli elementi. Usa i tasti laterali di ogni riga per rinominare, cambiare colore o spostarla!</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
+            <h1 id="tierlist-title" style="margin:0; font-size:24px;">Classifica Tier List</h1>
+            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona</button>
+        </div>
+        <p style="text-align:center; font-size:12px; color:var(--text-secondary); margin-top:5px;">Smista gli elementi. Usa i tasti laterali di ogni riga per rinominare, cambiare colore o spostarla!</p>
         
         <div style="display:flex; gap:10px; margin-bottom:15px; justify-content:center;">
             <button class="btn btn-secondary" onclick="openAddTierModal()">➕ Aggiungi Nuova Riga (Tier)</button>
@@ -316,16 +334,17 @@
 
         <div class="tier-bench" id="tier-bench-zone" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'bench')">
             </div>
-        <button class="btn btn-primary btn-block" style="margin-top:20px;" onclick="switchScreen('dashboard-screen')">Torna alla Dashboard</button>
     </div>
 
     <div class="container hidden" id="guess-screen">
-        <h1 id="guess-game-title">Gioco "Chi Sono?"</h1>
-        <div style="background:#252525; padding:12px; border-radius:6px; text-align:center; font-size:14px; border:1px solid #444;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
+            <h1 id="guess-game-title" style="margin:0; font-size:24px;">Gioco "Chi Sono?"</h1>
+            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona Partita</button>
+        </div>
+        <div style="background:#252525; padding:12px; border-radius:6px; text-align:center; font-size:14px; border:1px solid #444; margin-top:10px;">
             💡 <strong>Regole:</strong> Uno di voi sceglie segretamente un elemento. Gli altri fanno domande. Cliccate sulle tessere per eliminarle!
         </div>
         <div class="guess-grid" id="guess-cards-grid"></div>
-        <button class="btn btn-danger btn-block" style="margin-top:25px;" onclick="switchScreen('dashboard-screen')">Abbandona Partita</button>
     </div>
 
     <div class="container hidden" id="winner-screen">
@@ -696,7 +715,6 @@
             activeContent = database.find(d => d.id === id); if(!activeContent) return;
             document.getElementById('config-tournament-name').innerText = activeContent.name;
             document.getElementById('config-total-items').innerText = activeContent.items.length;
-            
             selectGameActivityMode('tournament');
             switchScreen('play-config-screen');
         }
@@ -705,45 +723,20 @@
             selectedActivityMode = mode; 
             document.getElementById('mode-btn-t').style.border = mode === 'tournament' ? '2px solid white' : 'none'; 
             document.getElementById('mode-btn-g').style.border = mode === 'guess' ? '2px solid white' : 'none';
-            
-            const sizeSec = document.getElementById('config-size-sub-section'); 
-            const total = activeContent.items.length; 
-            const select = document.getElementById('tournament-size-select');
-            
+            const sizeSec = document.getElementById('config-size-sub-section'); const total = activeContent.items.length; const select = document.getElementById('tournament-size-select');
             select.innerHTML = ''; 
 
             if(mode === 'tournament') {
-                sizeSec.classList.remove('hidden'); 
-                const targetSizes = [4, 8, 16, 32, 64, 128];
-
-                targetSizes.forEach(size => { 
-                    if(size < total) { 
-                        const opt = document.createElement('option'); 
-                        opt.value = size; 
-                        opt.innerText = `Torneo ridotto casuale a ${size} elementi`; 
-                        select.appendChild(opt); 
-                    } 
-                });
-
-                const optAll = document.createElement('option'); 
-                optAll.value = 'all'; 
-                optAll.innerText = `Gioca con tutti gli elementi (${total})`; 
-                optAll.selected = true; 
-                select.appendChild(optAll);
-            } else { 
-                sizeSec.classList.add('hidden'); 
-            }
+                sizeSec.classList.remove('hidden'); const targetSizes = [4, 8, 16, 32, 64, 128];
+                targetSizes.forEach(size => { if(size < total) { const opt = document.createElement('option'); opt.value = size; opt.innerText = `Torneo ridotto casuale a ${size} elementi`; select.appendChild(opt); } });
+                const optAll = document.createElement('option'); optAll.value = 'all'; optAll.innerText = `Gioca con tutti gli elementi (${total})`; optAll.selected = true; select.appendChild(optAll);
+            } else { sizeSec.classList.add('hidden'); }
         }
 
         function startMatchWithConfig() {
             if(selectedActivityMode === 'guess') { startGuessGameActivity(); return; } 
-            
-            const selectElement = document.getElementById('tournament-size-select');
-            const sc = selectElement.value || 'all'; 
-            
-            let pool = [...activeContent.items].sort(() => Math.random() - 0.5);
-            if(sc !== 'all') pool = pool.slice(0, parseInt(sc)); 
-            
+            const selectElement = document.getElementById('tournament-size-select'); const sc = selectElement.value || 'all'; 
+            let pool = [...activeContent.items].sort(() => Math.random() - 0.5); if(sc !== 'all') pool = pool.slice(0, parseInt(sc)); 
             currentRound = pool; nextRound = []; currentMatchIndex = 0; roundCount = 1; 
             document.getElementById('game-tournament-title').innerText = activeContent.name;
             switchScreen('game-screen'); setupMatch();
@@ -757,9 +750,53 @@
         }
 
         /* --- ARENA TORNEO --- */
-        function setupMatch() { if (currentMatchIndex >= currentRound.length) { currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; } if (currentRound.length === 1) { registerHofWinner(currentRound[0].name, activeContent.name); showWinner(currentRound[0]); return; } if (currentMatchIndex === currentRound.length - 1) { nextRound.push(currentRound[currentMatchIndex]); currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; setupMatch(); return; } let rt = `Fase a eliminazione`; if(currentRound.length === 2) rt = "🏆 FINALISSIMA 🏆"; else if(currentRound.length === 4) rt = "🏁 Semifinale 🏁"; else if(currentRound.length === 8) rt = "Quarti di Finale"; else rt = `Turno ${roundCount} - Rimasti: ${currentRound.length}`; document.getElementById('round-title').innerText = rt; renderCardData('left', currentRound[currentMatchIndex]); renderCardData('right', currentRound[currentMatchIndex + 1]); }
+        function setupMatch() { 
+            // Ripristina la scritta "VS" standard se lo scontro precedente era andato allo spareggio
+            document.getElementById('vs-text-node').innerText = "VS";
+            document.getElementById('vs-text-node').style.color = "var(--accent-color)";
+
+            if (currentMatchIndex >= currentRound.length) { currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; } 
+            if (currentRound.length === 1) { registerHofWinner(currentRound[0].name, activeContent.name); showWinner(currentRound[0]); return; } 
+            if (currentMatchIndex === currentRound.length - 1) { nextRound.push(currentRound[currentMatchIndex]); currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; setupMatch(); return; } 
+            
+            let rt = `Fase a eliminazione`;
+            if(currentRound.length === 2) rt = "🏆 FINALISSIMA 🏆"; else if(currentRound.length === 4) rt = "🏁 Semifinale 🏁"; else if(currentRound.length === 8) rt = "Quarti di Finale"; else rt = `Turno ${roundCount} - Rimasti: ${currentRound.length}`; 
+            document.getElementById('round-title').innerText = rt; 
+            renderCardData('left', currentRound[currentMatchIndex]); renderCardData('right', currentRound[currentMatchIndex + 1]); 
+        }
+        
         function renderCardData(side, item) { const ie = document.getElementById(`img-${side}`); const pe = document.getElementById(`placeholder-${side}`); const ne = document.getElementById(`name-${side}`); ne.innerText = item.name; if(item.src) { ie.src = item.src; ie.classList.remove('hidden'); pe.classList.add('hidden'); } else { ie.src = ''; ie.classList.add('hidden'); pe.innerText = item.name; pe.classList.remove('hidden'); } }
         function selectWinner(side) { const w = currentRound[currentMatchIndex + side]; nextRound.push(w); currentMatchIndex += 2; setupMatch(); }
+        
+        /* --- ⚖️ FUNZIONE SPAREGGIO CASUALE (Richiesta 1!) --- */
+        function executeRandomTiebreaker() {
+            const vsNode = document.getElementById('vs-text-node');
+            vsNode.innerText = "🎲 ...";
+            vsNode.style.color = "var(--warning-color)";
+            
+            // Piccola animazione di calcolo di 400 millisecondi per creare suspense tra gli amici
+            setTimeout(() => {
+                const coinFlip = Math.random() < 0.5; // 50% di probabilità destra o sinistra
+                if (coinFlip) {
+                    vsNode.innerText = "⬅️ FRECCIA";
+                    vsNode.style.color = "var(--secondary-color)";
+                } else {
+                    vsNode.innerText = "FRECCIA ➡️";
+                    vsNode.style.color = "var(--secondary-color)";
+                }
+            }, 400);
+        }
+
+        /* --- 🏳️ FUNZIONE INTERRUZIONE E ABBANDONO UNIVERSALE (Richiesta 2!) --- */
+        function quitActiveGameProcess() {
+            if (confirm("Vuoi davvero abbandonare la partita in corso e tornare alla Dashboard principale?")) {
+                clearInterval(quizTimerInterval); // Sicurezza: ferma eventuali timer attivi
+                activeContent = null;
+                switchScreen('dashboard-screen');
+                renderDashboard();
+            }
+        }
+
         function showWinner(w) { document.getElementById('end-screen-main-title').innerText = "🏆 Vincitore Assoluto! 🏆"; switchScreen('winner-screen'); document.getElementById('winner-name').innerText = w.name; const wi = document.getElementById('winner-img'); const wp = document.getElementById('winner-placeholder'); if(w.src) { wi.src = w.src; wi.classList.remove('hidden'); wp.classList.add('hidden'); } else { wi.src = ''; wi.classList.add('hidden'); wp.innerText = w.name; wp.classList.remove('hidden'); } }
 
         /* --- UTILS --- */
