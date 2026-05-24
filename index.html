@@ -53,7 +53,9 @@
         }
         .tournament-card:active { cursor: grabbing; transform: scale(0.99); opacity: 0.8; }
         .tournament-card.quiz-type { border-left-color: var(--secondary-color); }
-        .tournament-card.archived-card { border-left-color: var(--warning-color); opacity: 0.8; cursor: default; }
+        .tournament-card.wheel-type { border-left-color: var(--warning-color); }
+        .tournament-card.archived-card { border-left-color: var(--text-secondary); opacity: 0.6; cursor: default; }
+        
         .tournament-cover-thumb {
             width: 70px; height: 70px; object-fit: cover; border-radius: 6px; background: #333;
             display: flex; align-items: center; justify-content: center; font-size: 24px;
@@ -82,7 +84,6 @@
         .btn-block { display: block; width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;}
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         
-        /* Tasto di abbandono fisso in alto nei giochi */
         .btn-quit-game { background: #333; color: var(--danger-color); border: 1px solid var(--danger-color); margin-bottom: 15px; width: auto; display: inline-block; }
         .btn-quit-game:hover { background: var(--danger-color); color: white; }
 
@@ -94,7 +95,7 @@
         .item-preview input { width: 90%; background: #333; border: none; color: #fff; padding: 4px; margin-top: 5px; text-align: center; border-radius: 3px; font-size: 11px; }
         .btn-remove-item { background: rgba(207, 102, 121, 0.2); color: var(--danger-color); border: 1px solid var(--danger-color); border-radius: 3px; cursor: pointer; padding: 2px; font-size: 10px; margin-top: 5px; width: 100%; font-weight: bold; }
 
-        /* Quiz Builder */
+        /* Builders Extra */
         .question-builder-box { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #444; }
         .answers-builder-container { margin-top: 10px; padding-left: 10px; border-left: 2px solid var(--secondary-color); }
         .answer-builder-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
@@ -118,6 +119,7 @@
         .btn-answer-game:hover { background: #2e2e2e; border-color: var(--secondary-color); }
         .timer-track { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-bottom: 15px; overflow: hidden; }
         .timer-bar { width: 100%; height: 100%; background: var(--danger-color); transition: width 0.1s linear; }
+        .quiz-hearts { font-size: 22px; text-align: center; color: var(--danger-color); margin-bottom: 10px; letter-spacing: 2px; }
 
         /* Review Quiz */
         .quiz-review-container { width: 100%; margin-top: 25px; text-align: left; background: #1a1a1a; padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto; box-sizing: border-box; }
@@ -128,39 +130,37 @@
         .review-ans-text { font-size: 13px; margin: 3px 0; }
         .review-explanation { font-size: 13px; margin-top: 8px; padding-top: 5px; border-top: 1px dashed #444; color: var(--warning-color); font-style: italic; }
 
-        /* Winner & End Screens */
-        .winner-box { text-align: center; padding: 20px; display: flex; flex-direction: column; align-items: center;}
-        .winner-box img { width: 100%; max-width: 350px; height: 350px; object-fit: cover; border-radius: 15px; border: 4px solid gold; }
-        .winner-placeholder { width: 100%; max-width: 350px; height: 350px; background: #2e2e2e; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: gold; padding: 30px; box-sizing: border-box; text-align: center; word-break: break-word; border-radius: 15px; border: 4px solid gold; }
-        .select-dark { width: 100%; padding: 12px; background: #252525; color: white; border: 1px solid #444; border-radius: 6px; font-size: 16px; margin-bottom: 20px; }
-
         /* --- 🎨 MODALITÀ TIER LIST --- */
         .tier-board-wrapper { background: #000; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; }
         .tier-row { display: flex; background: #1a1a1a; margin-bottom: 4px; border: 1px solid #2d2d2d; min-height: 90px; }
-        
         .tier-label { width: 90px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: #000; flex-shrink: 0; text-align: center; padding: 5px; box-sizing: border-box; word-break: break-word; }
         .tier-dropzone { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; flex-grow: 1; align-items: center; }
-        
         .tier-controls { display: flex; flex-direction: column; background: #252525; width: 45px; flex-shrink: 0; border-left: 1px solid #333; align-items: center; justify-content: center; gap: 3px; padding: 2px; box-sizing: border-box;}
         .tier-ctrl-btn { background: #333; color: white; border: none; width: 100%; padding: 3px 0; font-size: 11px; cursor: pointer; border-radius: 3px; font-weight: bold; text-align: center; }
         .tier-ctrl-btn:hover { background: #444; }
-
         .tier-bench { background: #1a1a1a; padding: 15px; border-radius: 8px; min-height: 100px; margin-top: 20px; border: 2px dashed #444; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
         .tier-item { width: 70px; background: #2a2a2a; border-radius: 4px; padding: 3px; text-align: center; font-size: 10px; cursor: grab; border: 1px solid #444; word-break: break-all; }
         .tier-item img { width: 100%; height: 55px; object-fit: cover; border-radius: 3px; }
         .tier-item-text { height: 55px; background: #333; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent-color); border-radius: 3px; padding: 2px; box-sizing: border-box; overflow: hidden; line-height: 11px;}
-
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999; }
         .modal-box { background:var(--card-bg); border-radius:10px; padding:20px; width:90%; max-width:400px; border:2px solid var(--accent-color); }
 
-        /* --- STILI GIOCO: CHI SONO --- */
-        .guess-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 25px; }
+        /* --- 🎰 COPERTINA & STRUTTURA RUOTA/SLOT (Punto 3!) --- */
+        .wheel-container-graphic { position: relative; width: 300px; height: 300px; margin: 20px auto; border-radius: 50%; border: 6px solid #333; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.6); transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); background: #222; }
+        .wheel-pin { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--danger-color); z-index: 999; }
+        .slot-machine-wrapper { width: 100%; max-width: 320px; height: 120px; background: #111; border: 4px solid gold; border-radius: 8px; margin: 30px auto; overflow: hidden; position: relative; box-shadow: inset 0 0 20px #000; }
+        .slot-window { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+        .slot-strip { display: flex; flex-direction: column; position: absolute; top: 0; transition: top 3s cubic-bezier(0.1, 0.7, 0.1, 1); width: 100%; text-align: center; }
+        .slot-cell { height: 112px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: gold; padding: 10px; box-sizing: border-box; word-break: break-word; }
+
+        /* --- 🕵️ STRUTTURA INDOVINA CHI O QUALE (Modificato e Ampliato!) --- */
+        .guess-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 25px; width: 100%; }
         .guess-card { background: #252525; border: 2px solid #444; border-radius: 8px; padding: 6px; text-align: center; cursor: pointer; transition: opacity 0.2s, filter 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
         .guess-card img { width: 100%; height: 95px; object-fit: cover; border-radius: 5px; }
         .guess-card.eliminated { opacity: 0.15; filter: grayscale(100%); border-color: #222; }
         .guess-card-name { font-size: 13px; font-weight: bold; margin-top: 6px; word-break: break-word; }
 
-        /* Hall Of Fame Table */
+        /* Hall Of Fame */
         .hof-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #1e1e1e; border-radius: 8px; overflow: hidden; font-size: 14px; }
         .hof-table th, .hof-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #333; }
         .hof-table th { background: #2a2a2a; color: var(--accent-color); }
@@ -170,9 +170,10 @@
 
     <div class="container" id="dashboard-screen">
         <h1>🏆 Gigi's Games 🏆</h1>
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
+        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px;">
             <button class="btn btn-primary" onclick="openCreateMode('tournament')">+ Nuovo Torneo</button>
             <button class="btn btn-secondary" onclick="openCreateMode('quiz')">+ Nuovo Quiz</button>
+            <button class="btn btn-warning" style="color:#000;" onclick="openCreateMode('wheel')">+ Nuova Ruota/Slot</button>
             <label class="btn" style="background: #333; cursor:pointer; padding: 10px 14px; border-radius:5px; font-size:13px; font-weight:bold;">
                 <input type="file" id="import-input" accept=".json"> Importa (.json)
             </label>
@@ -183,7 +184,7 @@
 
         <div style="margin-top: 30px; background: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #333;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="color: gold; margin:0; font-size: 18px;">👑 Hall of Fame (Vittorie Totali)</h2>
+                <h2 style="color: gold; margin:0; font-size: 18px;">👑 Hall of Fame Tornei</h2>
                 <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="resetHof()">Resetta</button>
             </div>
             <table class="hof-table">
@@ -222,26 +223,32 @@
         <input type="text" id="tournament-name" class="input-text" placeholder="Titolo...">
         
         <div class="input-group" id="group-tournament-builder">
-            <h3 style="text-align: left; margin-bottom: 10px; font-size:16px;">Gestione Sfidanti Torneo</h3>
+            <h3 style="text-align: left; margin-bottom: 10px; font-size:16px;" id="builder-pool-title">Gestione Sfidanti</h3>
             <div class="unified-adder-row">
-                <input type="text" id="item-name-input" class="input-text" placeholder="Nome sfidante / solo testo..." onkeydown="if(event.key === 'Enter') addUnifiedItem()">
+                <input type="text" id="item-name-input" class="input-text" placeholder="Nome scelta / testo / sfidante...">
                 <label class="btn btn-secondary" id="item-file-label" style="white-space: nowrap;">
                     <input type="file" id="item-file-input" accept="image/*"> 📷 Foto (Opz.)
                 </label>
                 <button class="btn btn-primary" onclick="addUnifiedItem()">Inserisci</button>
             </div>
-            <div style="text-align: center; margin-top: 10px;"><label style="font-size: 12px; color: var(--text-secondary); cursor: pointer; text-decoration: underline;"><input type="file" id="bulk-file-input" multiple accept="image/*" style="display:none;"> Caricamento in blocco immagini</label></div>
+            <div style="text-align: center; margin-top: 10px;" id="bulk-label-row"><label style="font-size: 12px; color: var(--text-secondary); cursor: pointer; text-decoration: underline;"><input type="file" id="bulk-file-input" multiple accept="image/*" style="display:none;"> Caricamento rapido foto in blocco</label></div>
             <div class="item-list" id="item-list-container"></div>
         </div>
 
         <div class="input-group hidden" id="group-quiz-builder">
-            <h3 style="text-align: left; margin-bottom: 10px; font-size:16px; color:var(--secondary-color);">Impostazioni Quiz</h3>
-            <div style="display:flex; align-items:center; gap:15px; background:#252525; padding:10px; border-radius:6px; margin-bottom:20px;">
+            <h3 style="text-align: left; margin-bottom: 10px; font-size:16px; color:var(--secondary-color);">Impostazioni Regole Quiz</h3>
+            <div style="display:flex; flex-direction:column; gap:12px; background:#252525; padding:12px; border-radius:6px; margin-bottom:20px;">
                 <label style="font-size:14px; font-weight:bold; cursor:pointer;"><input type="checkbox" id="quiz-timer-toggle" onchange="document.getElementById('quiz-timer-seconds-row').classList.toggle('hidden', !this.checked)"> ⏱️ Attiva Timer a Tempo (Modalità Ansia)</label>
-                <div id="quiz-timer-seconds-row" class="hidden" style="display:flex; align-items:center; gap:5px;">
-                    <input type="number" id="quiz-timer-input" style="width:60px; padding:6px; background:#111; color:#fff; border:1px solid #444; border-radius:4px;" value="10" min="3" max="60"> <span style="font-size:13px;">sec.</span>
+                <div id="quiz-timer-seconds-row" class="hidden" style="display:flex; align-items:center; gap:5px; margin-left:20px;">
+                    <input type="number" id="quiz-timer-input" style="width:65px; padding:6px; background:#111; color:#fff; border:1px solid #444; border-radius:4px;" value="10" min="3" max="60"> <span style="font-size:13px;">secondi per riga</span>
+                </div>
+                
+                <label style="font-size:14px; font-weight:bold; cursor:pointer; margin-top:5px;"><input type="checkbox" id="quiz-heart-toggle" onchange="document.getElementById('quiz-heart-number-row').classList.toggle('hidden', !this.checked)"> ❤️ Attiva Sistema di Vite (Modalità Sopravvivenza)</label>
+                <div id="quiz-heart-number-row" class="hidden" style="display:flex; align-items:center; gap:5px; margin-left:20px;">
+                    <input type="number" id="quiz-heart-input" style="width:65px; padding:6px; background:#111; color:#fff; border:1px solid #444; border-radius:4px;" value="3" min="1" max="10"> <span style="font-size:13px;">vite disponibili totali</span>
                 </div>
             </div>
+            
             <h3 style="text-align: left; margin-bottom: 15px; font-size:16px; color:var(--secondary-color);">Domande del Quiz</h3>
             <div id="quiz-questions-container"></div>
             <button class="btn btn-secondary btn-block" onclick="addNewQuestionToQuiz()">+ Aggiungi una Nuova Domanda</button>
@@ -257,16 +264,16 @@
         
         <div style="background:#252525; padding:15px; border-radius:8px; margin-bottom:20px; text-align:center;">
             <label style="font-weight:bold; display:block; margin-bottom:10px;">Scegli il gioco da fare con questo database:</label>
-            <div style="display:flex; gap:10px; justify-content:center;">
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
                 <button class="btn btn-primary" id="mode-btn-t" onclick="selectGameActivityMode('tournament')">⚔️ Torneo Knockout</button>
-                <button class="btn btn-secondary" id="mode-btn-g" onclick="selectGameActivityMode('guess')">🕵️ Gara "Chi Sono?"</button>
+                <button class="btn btn-secondary" id="mode-btn-g" onclick="selectGameActivityMode('guess')">🕵️ Indovina Chi o Quale</button>
             </div>
         </div>
 
         <div id="config-size-sub-section">
-            <p style="text-align: center; color: var(--text-secondary);">Questo database contiene <strong id="config-total-items" style="color:var(--accent-color);">0</strong> elementi.</p>
+            <p style="text-align: center; color: var(--text-secondary);">Questo database contiene <strong id="config-total-items" style="color:var(--accent-color);">0</strong> elementi totali.</p>
             <div style="margin: 20px 0;">
-                <label style="display:block; margin-bottom: 10px; font-weight: bold;">Quanti elementi vuoi includere in partita?</label>
+                <label style="display:block; margin-bottom: 10px; font-weight: bold;" id="config-size-label-text">Quanti elementi vuoi includere in partita?</label>
                 <select id="tournament-size-select" class="select-dark"></select>
             </div>
         </div>
@@ -278,7 +285,7 @@
     <div class="container hidden" id="game-screen">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div class="round-title" id="game-tournament-title" style="color: var(--accent-color); font-weight: bold; margin:0;">Torneo</div>
-            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona Partita</button>
+            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona</button>
         </div>
         <div class="round-title" id="round-title" style="margin-top: 15px;">Fase</div>
         <div class="matchup-container">
@@ -306,6 +313,7 @@
             <div class="round-title" id="quiz-game-title" style="color: var(--secondary-color); font-weight: bold; margin:0;">Quiz</div>
             <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona</button>
         </div>
+        <div id="quiz-hearts-box" class="quiz-hearts hidden">❤️❤️❤️</div>
         <div id="quiz-timer-container" class="timer-track hidden"><div id="quiz-timer-bar" class="timer-bar"></div></div>
         <div id="quiz-progress-bar" style="text-align:center; margin-bottom:15px; color:var(--text-secondary);">Domanda 1 di X</div>
         
@@ -322,7 +330,7 @@
             <h1 id="tierlist-title" style="margin:0; font-size:24px;">Classifica Tier List</h1>
             <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona</button>
         </div>
-        <p style="text-align:center; font-size:12px; color:var(--text-secondary); margin-top:5px;">Smista gli elementi. Usa i tasti laterali di ogni riga per rinominare, cambiare colore o spostarla!</p>
+        <p style="text-align:center; font-size:12px; color:var(--text-secondary); margin-top:5px;">Smista gli elementi nelle righe!</p>
         
         <div style="display:flex; gap:10px; margin-bottom:15px; justify-content:center;">
             <button class="btn btn-secondary" onclick="openAddTierModal()">➕ Aggiungi Nuova Riga (Tier)</button>
@@ -330,23 +338,48 @@
         </div>
 
         <div class="tier-board-wrapper" id="tier-capture-area">
-            <div id="tier-rows-container">
-                </div>
+            <div id="tier-rows-container"></div>
         </div>
-
-        <div class="tier-bench" id="tier-bench-zone" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'bench')">
-            </div>
+        <div class="tier-bench" id="tier-bench-zone" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'bench')"></div>
     </div>
 
     <div class="container hidden" id="guess-screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:10px;">
-            <h1 id="guess-game-title" style="margin:0; font-size:24px;">Gioco "Chi Sono?"</h1>
-            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona Partita</button>
+            <h1 id="guess-game-title" style="margin:0; font-size:24px;">Gara Indovina Chi o Quale</h1>
+            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona</button>
         </div>
         <div style="background:#252525; padding:12px; border-radius:6px; text-align:center; font-size:14px; border:1px solid #444; margin-top:10px;">
-            💡 <strong>Regole:</strong> Uno di voi sceglie segretamente un elemento. Gli altri fanno domande. Cliccate sulle tessere per eliminarle!
+            💡 Uno sceglie un elemento segreto. Gli altri fanno domande a turni. Clicca sulle tessere per escluderle!
         </div>
         <div class="guess-grid" id="guess-cards-grid"></div>
+    </div>
+
+    <div class="container hidden" id="wheel-game-screen">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom:15px;">
+            <div class="round-title" id="wheel-game-main-title" style="color: var(--warning-color); font-weight: bold; margin:0;">Ruota Custom</div>
+            <button class="btn btn-quit-game" onclick="quitActiveGameProcess()">🏳️ Abbandona</button>
+        </div>
+        
+        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px;">
+            <button class="btn btn-secondary" id="wheel-switch-btn-w" onclick="changeWheelUIMode('wheel')">🎡 Ruota Girevole</button>
+            <button class="btn btn-secondary" id="wheel-switch-btn-s" onclick="changeWheelUIMode('slot')">🎰 Slot Machine</button>
+        </div>
+
+        <div id="wrapper-graphic-wheel-mode" class="hidden" style="text-align:center; position:relative; width:320px; margin:0 auto;">
+            <div class="wheel-pin"></div>
+            <canvas id="wheel-canvas" width="300" height="300" class="wheel-container-graphic"></canvas>
+        </div>
+
+        <div id="wrapper-graphic-slot-mode" class="hidden">
+            <div class="slot-machine-wrapper">
+                <div class="slot-window">
+                    <div class="slot-strip" id="slot-strip-node"></div>
+                </div>
+            </div>
+        </div>
+
+        <h2 id="wheel-result-display" style="color:gold; text-align:center; margin-top:20px; font-size:26px; min-height:35px;">...</h2>
+        <button class="btn btn-primary btn-block" style="font-size:20px; padding:15px; margin-top:20px;" id="wheel-spin-trigger-btn" onclick="triggerWheelSpinAction()">LANCIA IL DESTINO 🎲</button>
     </div>
 
     <div class="container hidden" id="winner-screen">
@@ -393,17 +426,22 @@
         let activeContent = null; let currentRound = []; let nextRound = []; let currentMatchIndex = 0; let roundCount = 1; 
         let quizCurrentIndex = 0; let quizScore = 0; let quizUserHistory = [];
         let quizTimerInterval = null; let quizTimeLeft = 0; let quizMaxDuration = 10;
-        let selectedActivityMode = 'tournament'; 
-        let mobileSelectedItemId = null; 
-        let mobileSelectedDashboardCardId = null; // Puntatore mobile per ordinamento dashboard
+        let quizHeartsRemaining = 3; let quizHasHeartsSystem = false; // Gestione cuori quiz
 
-        let currentTierStructure = [];
-        let targetEditingRowId = null; 
+        let selectedActivityMode = 'tournament'; 
+        let mobileSelectedItemId = null; let mobileSelectedDashboardCardId = null; 
+        let currentTierStructure = []; let targetEditingRowId = null; 
+
+        // Variabili locali stato Ruota/Slot
+        let currentWheelUIMode = 'wheel'; // 'wheel' o 'slot'
+        let isWheelSpinning = false;
+        let wheelColors = ["#ff7f7f", "#ffbf7f", "#ffdf7f", "#ffff7f", "#bfff7f", "#7fffbf", "#7fffff", "#7f9fff", "#bfffbf", "#ff7fff"];
 
         window.onload = function() { renderDashboard(); renderHof(); setupEventListeners(); };
 
         function switchScreen(screenId) {
             clearInterval(quizTimerInterval); 
+            isWheelSpinning = false;
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('play-config-screen').classList.add('hidden');
@@ -411,6 +449,7 @@
             document.getElementById('quiz-game-screen').classList.add('hidden');
             document.getElementById('tierlist-screen').classList.add('hidden');
             document.getElementById('guess-screen').classList.add('hidden');
+            document.getElementById('wheel-game-screen').classList.add('hidden');
             document.getElementById('winner-screen').classList.add('hidden');
             document.getElementById(screenId).classList.remove('hidden');
         }
@@ -418,35 +457,44 @@
         function getCoverHTML(coverData, type) {
             if(coverData) {
                 if(coverData.startsWith('data:image')) return `<img src="${coverData}" class="tournament-cover-thumb">`;
-                let fontSize = coverData.length > 3 ? '13px' : '24px';
-                return `<div class="tournament-cover-thumb" style="font-size: ${fontSize};">${coverData}</div>`;
+                return `<div class="tournament-cover-thumb" style="font-size: 13px;">${coverData}</div>`;
             }
-            return `<div class="tournament-cover-thumb">${type === 'quiz' ? '📝' : '🏆'}</div>`;
+            if(type === 'quiz') return `<div class="tournament-cover-thumb">📝</div>`;
+            if(type === 'wheel') return `<div class="tournament-cover-thumb">🎰</div>`;
+            return `<div class="tournament-cover-thumb">🏆</div>`;
         }
 
-        /* --- 📋 RENDERIZZAZIONE DASHBOARD CON FUNZIONI DRAG & SORT ATTIVE (Novità!) --- */
         function renderDashboard() {
             const activeContainer = document.getElementById('tournament-list-container');
             const archivedContainer = document.getElementById('archived-list-container');
             activeContainer.innerHTML = ''; archivedContainer.innerHTML = '';
             let actCount = 0; let archCount = 0;
 
-            database.forEach((item, index) => {
+            database.forEach((item) => {
                 const card = document.createElement('div');
                 let coverHTML = getCoverHTML(item.cover, item.type);
-                let typeClass = item.type === 'quiz' ? 'quiz-type' : '';
-                let infoText = item.type === 'quiz' ? `Quiz: ${item.questions.length} Domande` : `Torneo/Attività: ${item.items.length} Elementi`;
+                
+                let typeClass = 'tournament-type';
+                if(item.type === 'quiz') typeClass = 'quiz-type';
+                if(item.type === 'wheel') typeClass = 'wheel-type';
 
-                let isQuiz = item.type === 'quiz';
-                let playClick = isQuiz ? `playQuiz('${item.id}')` : `openPlayConfig('${item.id}')`;
-                let tierListBtn = !isQuiz ? `<button class="btn btn-secondary" style="background:var(--secondary-color);" onclick="openTierListMode('${item.id}')">Tier List</button>` : '';
+                let infoText = `Torneo: ${item.items ? item.items.length : 0} Elementi`;
+                if(item.type === 'quiz') infoText = `Quiz: ${item.questions.length} Domande`;
+                if(item.type === 'wheel') infoText = `Ruota/Slot: ${item.items.length} Opzioni`;
 
-                if(item.archived) {
+                let isArchived = item.archived;
+                let playClick = `openPlayConfig('${item.id}')`;
+                if(item.type === 'quiz') playClick = `playQuiz('${item.id}')`;
+                if(item.type === 'wheel') playClick = `playWheelGame('${item.id}')`;
+                
+                let tierListBtn = item.type === 'tournament' ? `<button class="btn btn-secondary" style="background:var(--secondary-color);" onclick="openTierListMode('${item.id}')">Tier List</button>` : '';
+
+                if(isArchived) {
                     archCount++;
                     card.className = `tournament-card archived-card ${typeClass}`;
                     card.innerHTML = `
                         ${coverHTML}
-                        <div class="tournament-info"><h3>${item.name}</h3><p>${infoText} (Archiviato)</p></div>
+                        <div class="tournament-info"><h3>${item.name}</h3><p>${infoText}</p></div>
                         <div class="tournament-actions">
                             <button class="btn btn-warning" onclick="toggleArchiveStatus('${item.id}', false)">Ripristina 📁</button>
                             <button class="btn btn-danger" onclick="deleteContent('${item.id}')">Elimina</button>
@@ -454,21 +502,16 @@
                     archivedContainer.appendChild(card);
                 } else {
                     actCount++;
-                    card.className = `tournament-card ${typeClass}`;
-                    card.id = `dashcard-${item.id}`;
-                    
-                    // Attiva il Drag and Drop nativo per PC
+                    card.className = `tournament-card ${typeClass}`; card.id = `dashcard-${item.id}`;
                     card.draggable = true;
                     card.ondragstart = function(e) { e.dataTransfer.setData("text/card-id", item.id); };
                     card.ondrop = function(e) { handleDashboardCardDrop(e, item.id); };
-                    
-                    // Attiva il click adattivo per smartphone
                     card.onclick = function(e) { handleDashboardMobileSortClick(e, item.id); };
 
                     card.innerHTML = `
                         ${coverHTML}
                         <div class="tournament-info"><h3>${item.name}</h3><p>${infoText}</p></div>
-                        <div class="tournament-actions" onclick="event.stopPropagation(); /* blocca riordinamento se cliccano i pulsanti */">
+                        <div class="tournament-actions" onclick="event.stopPropagation();">
                             <button class="btn btn-primary" onclick="${playClick}">Gioca</button>
                             ${tierListBtn}
                             <button class="btn btn-secondary" onclick="editContent('${item.id}')">Modifica</button>
@@ -484,76 +527,27 @@
             if(archCount === 0) archivedContainer.innerHTML = `<p style="text-align:center; color: var(--text-secondary); padding:10px;">L'archivio è vuoto.</p>`;
         }
 
-        // Gestione del Drag and Drop su PC per la Dashboard
         function allowDashboardSort(e) { e.preventDefault(); }
-        
-        function handleDashboardCardDrop(e, targetId) {
-            e.preventDefault();
-            const draggedId = e.dataTransfer.getData("text/card-id");
-            if (!draggedId || draggedId === targetId) return;
+        function handleDashboardCardDrop(e, targetId) { e.preventDefault(); const draggedId = e.dataTransfer.getData("text/card-id"); if (!draggedId || draggedId === targetId) return; reorderDatabaseItems(draggedId, targetId); }
+        function handleDashboardMobileSortClick(e, cardId) { e.stopPropagation(); if (!mobileSelectedDashboardCardId) { mobileSelectedDashboardCardId = cardId; document.getElementById(`dashcard-${cardId}`).style.borderColor = "var(--accent-color)"; } else { const oldId = mobileSelectedDashboardCardId; document.getElementById(`dashcard-${oldId}`).style.borderColor = "transparent"; mobileSelectedDashboardCardId = null; if(oldId !== cardId) { reorderDatabaseItems(oldId, cardId); } } }
+        function reorderDatabaseItems(sourceId, targetId) { const sourceIndex = database.findIndex(item => item.id === sourceId); const targetIndex = database.findIndex(item => item.id === targetId); if (sourceIndex === -1 || targetIndex === -1) return; const [movedItem] = database.splice(sourceIndex, 1); database.splice(targetIndex, 0, movedItem); saveToLocalStorage(); renderDashboard(); }
 
-            reorderDatabaseItems(draggedId, targetId);
-        }
-
-        // Gestione dell'ordinamento tramite click sequenziale su Smartphone
-        function handleDashboardMobileSortClick(e, cardId) {
-            e.stopPropagation();
+        function openCreateMode(type) {
+            editingContentId = null; currentFormType = type;
+            document.getElementById('setup-screen-title').innerText = type === 'quiz' ? "Configura Nuovo Quiz" : (type === 'wheel' ? "Configura Nuova Ruota/Slot" : "Configura Nuovo Torneo");
             
-            // Se non c'è nessuna tessera selezionata, seleziona questa
-            if (!mobileSelectedDashboardCardId) {
-                mobileSelectedDashboardCardId = cardId;
-                document.getElementById(`dashcard-${cardId}`).style.borderColor = "var(--accent-color)";
-            } else {
-                // Se c'è già una tessera selezionata, sposta la vecchia vicino a questa nuova cliccata
-                const oldId = mobileSelectedDashboardCardId;
-                document.getElementById(`dashcard-${oldId}`).style.borderColor = "transparent";
-                mobileSelectedDashboardCardId = null; // svuota
-
-                if(oldId !== cardId) {
-                    reorderDatabaseItems(oldId, cardId);
-                }
-            }
-        }
-
-        // Funzione core che sposta i dati nell'array e risalva la memoria
-        function reorderDatabaseItems(sourceId, targetId) {
-            const sourceIndex = database.findIndex(item => item.id === sourceId);
-            const targetIndex = database.findIndex(item => item.id === targetId);
+            document.getElementById('group-tournament-builder').classList.toggle('hidden', type === 'quiz');
+            document.getElementById('group-quiz-builder').classList.toggle('hidden', type !== 'quiz');
+            document.getElementById('bulk-label-row').classList.toggle('hidden', type === 'wheel');
             
-            if (sourceIndex === -1 || targetIndex === -1) return;
-
-            // Rimuove l'oggetto dalla vecchia posizione e lo inserisce nella nuova
-            const [movedItem] = database.splice(sourceIndex, 1);
-            database.splice(targetIndex, 0, movedItem);
-
-            saveToLocalStorage();
-            renderDashboard();
+            document.getElementById('builder-pool-title').innerText = type === 'wheel' ? "Opzioni della Ruota / Slot" : "Gestione Sfidanti Torneo";
+            clearSetupFields();
+            if(type === 'quiz') addNewQuestionToQuiz();
+            switchScreen('setup-screen');
         }
 
-
-        function registerHofWinner(itemName, tournamentName) {
-            let record = hof.find(h => h.name.toLowerCase() === itemName.toLowerCase() && h.tournament.toLowerCase() === tournamentName.toLowerCase());
-            if(record) record.wins++;
-            else hof.push({ name: itemName, tournament: tournamentName, wins: 1 });
-            localStorage.setItem('app_hof_records', JSON.stringify(hof));
-            renderHof();
-        }
-
-        function renderHof() {
-            const tbody = document.getElementById('hof-tbody'); tbody.innerHTML = '';
-            let sortedHof = [...hof].sort((a,b) => b.wins - a.wins);
-            if(sortedHof.length === 0) { tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-secondary);">Nessun vincitore registrato.</td></tr>`; return; }
-            sortedHof.forEach(h => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td><strong>${h.name}</strong></td><td>${h.tournament}</td><td style="color:gold; font-weight:bold;">${h.wins} 🏆</td>`;
-                tbody.appendChild(row);
-            });
-        }
-
-        function resetHof() { if(confirm("Azzerare il Muro dei Vincitori?")) { hof = []; localStorage.removeItem('app_hof_records'); renderHof(); } }
-        function openCreateMode(type) { editingContentId = null; currentFormType = type; document.getElementById('setup-screen-title').innerText = type === 'quiz' ? "Configura Nuovo Quiz" : "Configura Nuovo Torneo"; document.getElementById('group-tournament-builder').classList.toggle('hidden', type !== 'tournament'); document.getElementById('group-quiz-builder').classList.toggle('hidden', type !== 'quiz'); clearSetupFields(); if(type === 'quiz') addNewQuestionToQuiz(); switchScreen('setup-screen'); }
-        function setCoverAsText(val) { tempCoverSrc = val.trim(); const pb = document.getElementById('cover-preview-box'); if(tempCoverSrc) { pb.innerHTML = tempCoverSrc; pb.style.fontSize = tempCoverSrc.length > 3 ? '13px' : '24px'; } else { pb.innerHTML = currentFormType === 'quiz' ? '📝' : '🏆'; pb.style.fontSize = '24px'; } }
-        function removeCover() { tempCoverSrc = ''; document.getElementById('cover-preview-box').innerHTML = currentFormType === 'quiz' ? '📝' : '🏆'; document.getElementById('cover-preview-box').style.fontSize = '24px'; document.getElementById('cover-text-input').value = ''; }
+        function setCoverAsText(val) { tempCoverSrc = val.trim(); const pb = document.getElementById('cover-preview-box'); if(tempCoverSrc) { pb.innerHTML = tempCoverSrc; } else { pb.innerHTML = currentFormType === 'quiz' ? '📝' : (currentFormType === 'wheel' ? '🎰' : '🏆'); } }
+        function removeCover() { tempCoverSrc = ''; document.getElementById('cover-preview-box').innerHTML = currentFormType === 'quiz' ? '📝' : (currentFormType === 'wheel' ? '🎰' : '🏆'); document.getElementById('cover-text-input').value = ''; }
 
         /* --- QUIZ BUILDER --- */
         function addNewQuestionToQuiz(loadedData = null) {
@@ -579,12 +573,13 @@
 
         function uploadQuestionImage(qId, input) { if(input.files && input.files[0]) { compressImage(input.files[0], 500, 0.6, function(base64) { document.getElementById(qId).querySelector('.q-img-hidden').value = base64; document.getElementById(`status-img-${qId}`).innerText = "Immagine Caricata ✓"; document.getElementById(`lbl-img-${qId}`).style.background = "var(--success-color)"; }); } }
 
-        /* --- SALVATAGGIO --- */
+        /* --- SALVATAGGIO CONFIGURAZIONI --- */
         function saveContent() {
             const nameInput = document.getElementById('tournament-name').value.trim(); if(!nameInput) { alert("Inserisci un titolo!"); return; }
-            if(currentFormType === 'tournament') {
-                if(currentItems.length < 2) { alert("Inserisci almeno 2 sfidanti!"); return; }
-                let record = { id: editingContentId || 't_' + Math.random().toString(36).substr(2, 9), type: 'tournament', name: nameInput, cover: tempCoverSrc, items: currentItems, archived: false };
+
+            if(currentFormType === 'tournament' || currentFormType === 'wheel') {
+                if(currentItems.length < 2) { alert("Inserisci almeno 2 elementi!"); return; }
+                let record = { id: editingContentId || 't_' + Math.random().toString(36).substr(2, 9), type: currentFormType, name: nameInput, cover: tempCoverSrc, items: currentItems, archived: false };
                 if(editingContentId) { let idx = database.findIndex(d => d.id === editingContentId); if(idx !== -1) record.archived = database[idx].archived; database = database.filter(d => d.id !== editingContentId); }
                 database.push(record);
             } else {
@@ -602,8 +597,11 @@
                     compiledQuestions.push({ question: qText, src: qImg, explanation: qExplanation, answers: answersList });
                 });
                 if(validationError) { alert(validationError); return; }
+                
                 let isTimerActive = document.getElementById('quiz-timer-toggle').checked; let timerSeconds = parseInt(document.getElementById('quiz-timer-input').value) || 10;
-                let record = { id: editingContentId || 'q_' + Math.random().toString(36).substr(2, 9), type: 'quiz', name: nameInput, cover: tempCoverSrc, timed: isTimerActive, duration: timerSeconds, questions: compiledQuestions, archived: false };
+                let isHeartsActive = document.getElementById('quiz-heart-toggle').checked; let heartNum = parseInt(document.getElementById('quiz-heart-input').value) || 3;
+
+                let record = { id: editingContentId || 'q_' + Math.random().toString(36).substr(2, 9), type: 'quiz', name: nameInput, cover: tempCoverSrc, timed: isTimerActive, duration: timerSeconds, useHearts: isHeartsActive, heartsCount: heartNum, questions: compiledQuestions, archived: false };
                 if(editingContentId) { let idx = database.findIndex(d => d.id === editingContentId); if(idx !== -1) record.archived = database[idx].archived; database = database.filter(d => d.id !== editingContentId); }
                 database.push(record);
             }
@@ -613,26 +611,54 @@
         function editContent(id) {
             const item = database.find(d => d.id === id); if(!item) return;
             editingContentId = id; currentFormType = item.type;
-            document.getElementById('setup-screen-title').innerText = item.type === 'quiz' ? "Modifica Quiz" : "Modifica Torneo";
+            document.getElementById('setup-screen-title').innerText = item.type === 'quiz' ? "Modifica Quiz" : (item.type === 'wheel' ? "Modifica Ruota/Slot" : "Modifica Torneo");
             document.getElementById('tournament-name').value = item.name; tempCoverSrc = item.cover || '';
             const tc = document.getElementById('cover-text-input');
+            
+            document.getElementById('group-tournament-builder').classList.toggle('hidden', item.type === 'quiz');
+            document.getElementById('group-quiz-builder').classList.toggle('hidden', item.type !== 'quiz');
+            document.getElementById('bulk-label-row').classList.toggle('hidden', item.type === 'wheel');
+            document.getElementById('builder-pool-title').innerText = item.type === 'wheel' ? "Opzioni della Ruota / Slot" : "Gestione Sfidanti Torneo";
+
             if(item.cover) {
                 if(item.cover.startsWith('data:image')) { document.getElementById('cover-preview-box').innerHTML = `<img src="${item.cover}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`; tc.value = ''; } 
                 else { document.getElementById('cover-preview-box').innerHTML = item.cover; tc.value = item.cover; }
-            } else { document.getElementById('cover-preview-box').innerHTML = item.type === 'quiz' ? '📝' : '🏆'; tc.value = ''; }
-            if(item.type === 'tournament') {
-                document.getElementById('group-tournament-builder').classList.remove('hidden'); document.getElementById('group-quiz-builder').classList.add('hidden');
-                currentItems = JSON.parse(JSON.stringify(item.items)); document.getElementById('item-list-container').innerHTML = ''; currentItems.forEach(renderItemPreview);
+            } else { document.getElementById('cover-preview-box').innerHTML = item.type === 'quiz' ? '📝' : (item.type === 'wheel' ? '🎰' : '🏆'); tc.value = ''; }
+            
+            if(item.type === 'tournament' || item.type === 'wheel') {
+                currentItems = JSON.parse(JSON.stringify(item.items || []));
+                document.getElementById('item-list-container').innerHTML = ''; currentItems.forEach(renderItemPreview);
             } else {
-                document.getElementById('group-tournament-builder').classList.add('hidden'); document.getElementById('group-quiz-builder').classList.remove('hidden');
                 document.getElementById('quiz-timer-toggle').checked = item.timed || false; document.getElementById('quiz-timer-input').value = item.duration || 10; document.getElementById('quiz-timer-seconds-row').classList.toggle('hidden', !item.timed);
+                document.getElementById('quiz-heart-toggle').checked = item.useHearts || false; document.getElementById('quiz-heart-input').value = item.heartsCount || 3; document.getElementById('quiz-heart-number-row').classList.toggle('hidden', !item.useHearts);
                 document.getElementById('quiz-questions-container').innerHTML = ''; item.questions.forEach(q => addNewQuestionToQuiz(q));
             }
             switchScreen('setup-screen');
         }
 
-        /* --- QUIZ --- */
-        function playQuiz(id) { activeContent = database.find(d => d.id === id); if(!activeContent) return; quizCurrentIndex = 0; quizScore = 0; quizUserHistory = []; document.getElementById('quiz-game-title').innerText = activeContent.name; switchScreen('quiz-game-screen'); loadQuizQuestion(); }
+        /* --- LOGICA DI GIOCO DEL QUIZ CON VITE (Punto 4!) --- */
+        function playQuiz(id) {
+            activeContent = database.find(d => d.id === id); if(!activeContent) return;
+            quizCurrentIndex = 0; quizScore = 0; quizUserHistory = [];
+            
+            quizHasHeartsSystem = activeContent.useHearts || false;
+            quizHeartsRemaining = activeContent.heartsCount || 3;
+            
+            const heartsBox = document.getElementById('quiz-hearts-box');
+            if(quizHasHeartsSystem) {
+                heartsBox.classList.remove('hidden');
+                updateHeartsGraphicDisplay();
+            } else { heartsBox.classList.add('hidden'); }
+
+            document.getElementById('quiz-game-title').innerText = activeContent.name;
+            switchScreen('quiz-game-screen'); loadQuizQuestion();
+        }
+
+        function updateHeartsGraphicDisplay() {
+            let str = ''; for(let i=0; i<quizHeartsRemaining; i++) { str += '❤️ '; }
+            document.getElementById('quiz-hearts-box').innerText = str || '💔 SENZA VITE';
+        }
+
         function loadQuizQuestion() {
             clearInterval(quizTimerInterval); const qData = activeContent.questions[quizCurrentIndex]; document.getElementById('quiz-progress-bar').innerText = `Domanda ${quizCurrentIndex + 1} di ${activeContent.questions.length}`; document.getElementById('quiz-game-question-text').innerText = qData.question;
             const imgEl = document.getElementById('quiz-game-img'); const placeholderEl = document.getElementById('quiz-game-placeholder');
@@ -645,133 +671,151 @@
             if(activeContent.timed) { timerContainer.classList.remove('hidden'); quizMaxDuration = activeContent.duration || 10; quizTimeLeft = quizMaxDuration; updateTimerBarGraphic(); quizTimerInterval = setInterval(() => { quizTimeLeft -= 0.1; if(quizTimeLeft <= 0) { clearInterval(quizTimerInterval); checkQuizAnswer(false, "⌛ TEMPO SCADUTO!", qData); } else { updateTimerBarGraphic(); } }, 100); } else { timerContainer.classList.add('hidden'); }
         }
         function updateTimerBarGraphic() { let percentage = (quizTimeLeft / quizMaxDuration) * 100; document.getElementById('quiz-timer-bar').style.width = `${percentage}%`; }
-        function checkQuizAnswer(isCorrect, chosenText, questionData) { clearInterval(quizTimerInterval); if(isCorrect) quizScore++; let correctObj = questionData.answers.find(a => a.correct === true); let correctText = correctObj ? correctObj.text : ''; quizUserHistory.push({ question: questionData.question, isCorrect: isCorrect, chosen: chosenText, correctAnswer: correctText, explanation: questionData.explanation || '' }); quizCurrentIndex++; if(quizCurrentIndex < activeContent.questions.length) { loadQuizQuestion(); } else { showQuizEndScreen(); } }
-        function showQuizEndScreen() {
-            document.getElementById('end-screen-main-title').innerText = "📝 Quiz Completato! 📝"; switchScreen('winner-screen'); document.getElementById('winner-img').classList.add('hidden'); const placeholder = document.getElementById('winner-placeholder'); placeholder.classList.remove('hidden');
-            let percent = Math.round((quizScore / activeContent.questions.length) * 100); placeholder.innerText = `${percent}%`; document.getElementById('winner-name').innerText = `Punteggio finale: ${quizScore} su ${activeContent.questions.length}.`;
+        
+        function checkQuizAnswer(isCorrect, chosenText, questionData) {
+            clearInterval(quizTimerInterval);
+            if(isCorrect) { quizScore++; } 
+            else if(quizHasHeartsSystem) {
+                quizHeartsRemaining--;
+                updateHeartsGraphicDisplay();
+            }
+
+            let correctObj = questionData.answers.find(a => a.correct === true);
+            let correctText = correctObj ? correctObj.text : '';
+            quizUserHistory.push({ question: questionData.question, isCorrect: isCorrect, chosen: chosenText, correctAnswer: correctText, explanation: questionData.explanation || '' });
+
+            quizCurrentIndex++;
+            
+            // Trigger Game Over se finiscono i cuori
+            if(quizHasHeartsSystem && quizHeartsRemaining <= 0) {
+                showQuizEndScreen(true);
+            } else if(quizCurrentIndex < activeContent.questions.length) { 
+                loadQuizQuestion(); 
+            } else { 
+                showQuizEndScreen(false); 
+            }
+        }
+
+        function showQuizEndScreen(isGameOver = false) {
+            document.getElementById('end-screen-main-title').innerText = isGameOver ? "💔 GAME OVER 💔" : "📝 Quiz Completato! 📝";
+            switchScreen('winner-screen'); document.getElementById('winner-img').classList.add('hidden'); const placeholder = document.getElementById('winner-placeholder'); placeholder.classList.remove('hidden');
+            let percent = Math.round((quizScore / activeContent.questions.length) * 100); placeholder.innerText = `${percent}%`;
+            document.getElementById('winner-name').innerText = isGameOver ? `Hai terminato le vite! Risposte corrette: ${quizScore} su ${activeContent.questions.length}.` : `Punteggio finale: ${quizScore} su ${activeContent.questions.length}.`;
             const subScore = document.getElementById('quiz-score-sub'); subScore.classList.remove('hidden');
-            if(percent === 100) subScore.innerText = "🏆 Infallibile! Clamoroso punteggio pieno! ⭐"; else if(percent >= 70) subScore.innerText = "🔥 Ottimo lavoro, sei preparatissimo!"; else if(percent >= 40) subScore.innerText = "👍 Sufficienza raggiunta, ma si può fare di meglio."; else subScore.innerText = "📚 Studio insufficiente! Ritenta!";
+            if(isGameOver) subScore.innerText = "💥 Eliminato! Riprova con più attenzione.";
+            else if(percent === 100) subScore.innerText = "🏆 Clamoroso! Risposte esatte al 100%! ⭐"; else if(percent >= 70) subScore.innerText = "🔥 Ottimo livello, siete preparatissimo!"; else subScore.innerText = "👍 Sufficienza raggiunta, ma si può fare di meglio.";
             const reviewBox = document.getElementById('quiz-review-box'); const reviewList = document.getElementById('quiz-review-list'); reviewList.innerHTML = ''; reviewBox.classList.remove('hidden');
             quizUserHistory.forEach(hist => { const itemDiv = document.createElement('div'); if(hist.isCorrect) { itemDiv.className = 'review-item correct'; itemDiv.innerHTML = `<div class="review-q-title">🟢 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">✓ Risposta data: ${hist.chosen}</div>`; } else { itemDiv.className = 'review-item wrong'; let expHTML = hist.explanation ? `<div class="review-explanation">💡 Spiegazione: ${hist.explanation}</div>` : ''; itemDiv.innerHTML = `<div class="review-q-title">🔴 Domanda: ${hist.question}</div><div class="review-ans-text" style="color:var(--danger-color);">❌ Scelta: ${hist.chosen}</div><div class="review-ans-text" style="color:var(--success-color); font-weight:bold;">👉 Corretta: ${hist.correctAnswer}</div>${expHTML}`; } reviewList.appendChild(itemDiv); });
         }
 
-        /* --- 🎨 MODALITÀ TIER LIST --- */
-        function openTierListMode(id) {
+        /* --- 🎰 3. MODALITÀ GIOCO: RUOTA E SLOT MACHINE CUSTOM (Punto 3!) --- */
+        function playWheelGame(id) {
             activeContent = database.find(d => d.id === id); if(!activeContent) return;
-            document.getElementById('tierlist-title').innerText = `Tier List: ${activeContent.name}`;
+            document.getElementById('wheel-game-main-title').innerText = activeContent.name;
+            document.getElementById('wheel-result-display').innerText = "Clicca sotto per girare!";
+            switchScreen('wheel-game-screen');
+            changeWheelUIMode('wheel'); // Avvia in modalità ruota di base
+        }
+
+        function changeWheelUIMode(mode) {
+            if(isWheelSpinning) return;
+            currentWheelUIMode = mode;
+            document.getElementById('wheel-switch-btn-w').style.background = mode === 'wheel' ? 'var(--accent-color)' : '#333';
+            document.getElementById('wheel-switch-btn-s').style.background = mode === 'slot' ? 'var(--accent-color)' : '#333';
+            document.getElementById('wrapper-graphic-wheel-mode').classList.toggle('hidden', mode !== 'wheel');
+            document.getElementById('wrapper-graphic-slot-mode').classList.toggle('hidden', mode !== 'slot');
             
-            currentTierStructure = [
-                { id: 'row_' + Math.random().toString(36).substr(2, 5), label: 'S', color: '#ff7f7f' },
-                { id: 'row_' + Math.random().toString(36).substr(2, 5), label: 'A', color: '#ffbf7f' },
-                { id: 'row_' + Math.random().toString(36).substr(2, 5), label: 'B', color: '#ffdf7f' },
-                { id: 'row_' + Math.random().toString(36).substr(2, 5), label: 'C', color: '#ffff7f' },
-                { id: 'row_' + Math.random().toString(36).substr(2, 5), label: 'D', color: '#bfff7f' }
-            ];
-
-            renderTierRows();
-
-            const bench = document.getElementById('tier-bench-zone'); bench.innerHTML = ''; mobileSelectedItemId = null;
-            activeContent.items.forEach(item => {
-                const div = document.createElement('div'); div.className = 'tier-item'; div.id = `drag-${item.id}`; div.draggable = true;
-                div.ondragstart = function(e) { e.dataTransfer.setData("text", e.target.id); };
-                div.onclick = function(e) { e.stopPropagation(); handleMobileItemClick(item.id); };
-                let insideHTML = item.src ? `<img src="${item.src}">` : `<div class="tier-item-text">${item.name}</div>`;
-                div.innerHTML = `${insideHTML}<div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;">${item.name}</div>`;
-                bench.appendChild(div);
-            });
-            switchScreen('tierlist-screen');
+            if(mode === 'wheel') drawStaticCanvasWheelEngine(0);
+            else setupSlotMachineStripNode();
         }
 
-        function renderTierRows() {
-            const container = document.getElementById('tier-rows-container');
-            const savedElementsMap = {};
-            currentTierStructure.forEach(t => {
-                const existingZone = document.getElementById(`zone-tier-${t.id}`);
-                if(existingZone) savedElementsMap[t.id] = Array.from(existingZone.children);
+        function drawStaticCanvasWheelEngine(currentRotationAngle) {
+            const canvas = document.getElementById('wheel-canvas'); if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const items = activeContent.items;
+            const arcSize = (2 * Math.PI) / items.length;
+            
+            ctx.clearRect(0, 0, 300, 300);
+            ctx.save();
+            ctx.translate(150, 150);
+            ctx.rotate(currentRotationAngle);
+
+            items.forEach((item, idx) => {
+                ctx.fillStyle = wheelColors[idx % wheelColors.length];
+                ctx.beginPath();
+                ctx.moveTo(0,0);
+                ctx.arc(0, 0, 140, idx * arcSize, (idx + 1) * arcSize);
+                ctx.lineTo(0,0);
+                ctx.fill();
+                ctx.stroke();
+
+                // Disegna il testo dell'opzione all'interno della fetta
+                ctx.save();
+                ctx.fillStyle = "#000000";
+                ctx.font = "bold 12px sans-serif";
+                ctx.rotate(idx * arcSize + arcSize / 2);
+                ctx.textAlign = "right";
+                let textPrint = item.name.length > 12 ? item.name.substring(0,10) + '..' : item.name;
+                ctx.fillText(textPrint, 130, 4);
+                ctx.restore();
             });
+            ctx.restore();
+        }
 
-            container.innerHTML = '';
-
-            currentTierStructure.forEach((t, index) => {
-                const trow = document.createElement('div'); trow.className = 'tier-row'; trow.id = `tier-row-block-${t.id}`;
-                trow.innerHTML = `
-                    <div class="tier-label" style="background-color: ${t.color};">${t.label}</div>
-                    <div class="tier-dropzone" id="zone-tier-${t.id}" ondragover="allowDrop(event)" ondrop="handleDrop(event, '${t.id}')" onclick="handleMobileZoneClick('${t.id}')"></div>
-                    <div class="tier-controls">
-                        <button class="tier-ctrl-btn" onclick="moveTierRow(${index}, -1)">▲</button>
-                        <button class="tier-ctrl-btn" onclick="moveTierRow(${index}, 1)">▼</button>
-                        <button class="tier-ctrl-btn" style="background:#555;" onclick="openEditTierModal('${t.id}')">⚙️</button>
-                        <button class="tier-ctrl-btn" style="background:var(--danger-color);" onclick="deleteTierRow('${t.id}')">✕</button>
-                    </div>
-                `;
-                container.appendChild(trow);
-                if(savedElementsMap[t.id]) {
-                    const newZone = document.getElementById(`zone-tier-${t.id}`);
-                    savedElementsMap[t.id].forEach(child => newZone.appendChild(child));
-                }
+        function setupSlotMachineStripNode() {
+            const strip = document.getElementById('slot-strip-node');
+            strip.innerHTML = ''; strip.style.top = '0px';
+            // Popola la striscia con elementi duplicati per l'effetto scorrimento continuo
+            let pool = [...activeContent.items];
+            while(pool.length < 15) { pool = pool.concat(activeContent.items); }
+            
+            pool.forEach(item => {
+                const cell = document.createElement('div'); cell.className = 'slot-cell'; cell.innerText = item.name;
+                strip.appendChild(cell);
             });
         }
 
-        function moveTierRow(currentIndex, direction) {
-            let targetIndex = currentIndex + direction; if(targetIndex < 0 || targetIndex >= currentTierStructure.length) return;
-            let temp = currentTierStructure[currentIndex]; currentTierStructure[currentIndex] = currentTierStructure[targetIndex]; currentTierStructure[targetIndex] = temp;
-            renderTierRows();
+        function triggerWheelSpinAction() {
+            if(isWheelSpinning) return;
+            isWheelSpinning = true;
+            document.getElementById('wheel-result-display').innerText = "⚡ Calcolo in corso...";
+            
+            const pool = activeContent.items;
+            const winningIndex = Math.floor(Math.random() * pool.length);
+            const winnerName = pool[winningIndex].name;
+
+            if(currentWheelUIMode === 'wheel') {
+                let animationAngles = 0;
+                let targetAngles = (360 * 5) + (360 - (winningIndex * (360 / pool.length)) - (360 / pool.length / 2));
+                let currentPos = 0;
+                
+                let interval = setInterval(() => {
+                    currentPos += (targetAngles - currentPos) * 0.05; // Effetto decelerazione graduale
+                    drawStaticCanvasWheelEngine(currentPos * Math.PI / 180);
+                    if(targetAngles - currentPos < 0.2) {
+                        clearInterval(interval);
+                        document.getElementById('wheel-result-display').innerText = `🎉 ESTRATTO: ${winnerName}!`;
+                        isWheelSpinning = false;
+                    }
+                }, 20);
+            } else {
+                const strip = document.getElementById('slot-strip-node');
+                let cellHeight = 112;
+                // Calcola lo stop verticale perfetto basato sulla cella vincente
+                let stopTop = -(winningIndex * cellHeight);
+                strip.style.top = `${stopTop - (cellHeight * 5)}px`; // Scorrimento di rulli fittizio
+                
+                setTimeout(() => {
+                    strip.style.transition = 'none';
+                    strip.style.top = `${stopTop}px`;
+                    setTimeout(() => { strip.style.transition = 'top 3s cubic-bezier(0.1, 0.7, 0.1, 1)'; }, 50);
+                    document.getElementById('wheel-result-display').innerText = `🎰 ESTRATTO: ${winnerName}!`;
+                    isWheelSpinning = false;
+                }, 3050);
+            }
         }
 
-        function deleteTierRow(rowId) {
-            const zone = document.getElementById(`zone-tier-${rowId}`);
-            if(zone) { const children = Array.from(zone.children); const bench = document.getElementById('tier-bench-zone'); children.forEach(c => bench.appendChild(c)); }
-            currentTierStructure = currentTierStructure.filter(t => t.id !== rowId); renderTierRows();
-        }
-
-        function openEditTierModal(rowId) {
-            targetEditingRowId = rowId; const t = currentTierStructure.find(row => row.id === rowId); if(!t) return;
-            document.getElementById('modal-tier-title').innerText = "Modifica Livello"; document.getElementById('modal-tier-name-input').value = t.label; document.getElementById('modal-tier-color-input').value = t.color;
-            document.getElementById('modal-tier-save-btn').onclick = saveEditTierChanges; document.getElementById('tier-modal').classList.remove('hidden');
-        }
-
-        function saveEditTierChanges() {
-            const newName = document.getElementById('modal-tier-name-input').value.trim(); const newColor = document.getElementById('modal-tier-color-input').value; if(!newName) { alert("Dai un nome al livello!"); return; }
-            const t = currentTierStructure.find(row => row.id === targetEditingRowId); if(t) { t.label = newName; t.color = newColor; }
-            closeTierModal(); renderTierRows();
-        }
-
-        function openAddTierModal() {
-            targetEditingRowId = null; document.getElementById('modal-tier-title').innerText = "Aggiungi Nuovo Livello (Tier)"; document.getElementById('modal-tier-name-input').value = ''; document.getElementById('modal-tier-color-input').value = '#6200ee';
-            document.getElementById('modal-tier-save-btn').onclick = saveNewTierRow; document.getElementById('tier-modal').classList.remove('hidden');
-        }
-
-        function saveNewTierRow() {
-            const newName = document.getElementById('modal-tier-name-input').value.trim(); const newColor = document.getElementById('modal-tier-color-input').value; if(!newName) { alert("Inserisci un nome!"); return; }
-            currentTierStructure.push({ id: 'row_' + Math.random().toString(36).substr(2, 5), label: newName, color: newColor });
-            closeTierModal(); renderTierRows();
-        }
-
-        function closeTierModal() { document.getElementById('tier-modal').classList.add('hidden'); }
-
-        function downloadTierListImage() {
-            const captureArea = document.getElementById('tier-capture-area'); const controls = document.querySelectorAll('.tier-controls'); controls.forEach(c => c.style.display = 'none');
-            html2canvas(captureArea, { backgroundColor: '#000000', logging: false, useCORS: true, scale: 2 }).then(canvas => {
-                controls.forEach(c => c.style.display = 'flex'); const link = document.createElement('a'); link.download = `tierlist_${activeContent.name.toLowerCase().replace(/\s+/g, '_')}.png`; link.href = canvas.toDataURL('image/png'); document.body.appendChild(link); link.click(); link.remove();
-            }).catch(err => { controls.forEach(c => c.style.display = 'flex'); alert("Errore durante la generazione dell'immagine."); });
-        }
-
-        function allowDrop(e) { e.preventDefault(); }
-        function handleDrop(e, rowId) {
-            e.preventDefault(); const dataId = e.dataTransfer.getData("text"); const draggedElement = document.getElementById(dataId); if(!draggedElement) return;
-            if(rowId === 'bench') { document.getElementById('tier-bench-zone').appendChild(draggedElement); } 
-            else { document.getElementById(`zone-tier-${rowId}`).appendChild(draggedElement); }
-        }
-        function handleMobileItemClick(itemId) {
-            if(mobileSelectedItemId) { const prev = document.getElementById(`drag-${mobileSelectedItemId}`); if(prev) prev.style.border = "1px solid #444"; }
-            mobileSelectedItemId = itemId; document.getElementById(`drag-${itemId}`).style.border = "2px solid var(--secondary-color)";
-        }
-        function handleMobileZoneClick(rowId) {
-            if(!mobileSelectedItemId) return; const el = document.getElementById(`drag-${mobileSelectedItemId}`);
-            if(el) { document.getElementById(`zone-tier-${rowId}`).appendChild(el); el.style.border = "1px solid #444"; mobileSelectedItemId = null; }
-        }
-
-        /* --- CONFIGURAZIONE ATTIVITÀ --- */
+        /* --- 🕵️ INDOVINA CHI O QUALE POTENZIATO --- */
         function openPlayConfig(id) {
             activeContent = database.find(d => d.id === id); if(!activeContent) return;
             document.getElementById('config-tournament-name').innerText = activeContent.name;
@@ -784,19 +828,27 @@
             selectedActivityMode = mode; 
             document.getElementById('mode-btn-t').style.border = mode === 'tournament' ? '2px solid white' : 'none'; 
             document.getElementById('mode-btn-g').style.border = mode === 'guess' ? '2px solid white' : 'none';
-            const sizeSec = document.getElementById('config-size-sub-section'); const total = activeContent.items.length; const select = document.getElementById('tournament-size-select');
-            select.innerHTML = ''; 
+            
+            const total = activeContent.items.length; const select = document.getElementById('tournament-size-select'); select.innerHTML = '';
+            document.getElementById('config-size-label-text').innerText = mode === 'guess' ? "Scegli la dimensione della tabella del tabellone:" : "Quanti elementi vuoi includere in partita?";
 
             if(mode === 'tournament') {
-                sizeSec.classList.remove('hidden'); const targetSizes = [4, 8, 16, 32, 64, 128];
+                const targetSizes = [4, 8, 16, 32, 64, 128];
                 targetSizes.forEach(size => { if(size < total) { const opt = document.createElement('option'); opt.value = size; opt.innerText = `Torneo ridotto casuale a ${size} elementi`; select.appendChild(opt); } });
                 const optAll = document.createElement('option'); optAll.value = 'all'; optAll.innerText = `Gioca con tutti gli elementi (${total})`; optAll.selected = true; select.appendChild(optAll);
-            } else { sizeSec.classList.add('hidden'); }
+            } else {
+                // Opzioni di grandezza tabella per Indovina Chi (Richiesta!)
+                const sizes = [12, 24, 48, 96];
+                sizes.forEach(s => {
+                    if(s < total) { const opt = document.createElement('option'); opt.value = s; opt.innerText = `Tabella ridotta casuale da ${s} tessere`; select.appendChild(opt); }
+                });
+                const optAll = document.createElement('option'); optAll.value = 'all'; optAll.innerText = `VEDI TUTTI GLI ELEMENTI (${total}) — Griglia Estesa 🔽`; optAll.selected = true; select.appendChild(optAll);
+            }
         }
 
         function startMatchWithConfig() {
             if(selectedActivityMode === 'guess') { startGuessGameActivity(); return; } 
-            const selectElement = document.getElementById('tournament-size-select'); const sc = selectElement.value || 'all'; 
+            const sc = document.getElementById('tournament-size-select').value || 'all'; 
             let pool = [...activeContent.items].sort(() => Math.random() - 0.5); if(sc !== 'all') pool = pool.slice(0, parseInt(sc)); 
             currentRound = pool; nextRound = []; currentMatchIndex = 0; roundCount = 1; 
             document.getElementById('game-tournament-title').innerText = activeContent.name;
@@ -804,58 +856,58 @@
         }
 
         function startGuessGameActivity() {
-            document.getElementById('guess-game-title').innerText = `Chi Sono?: ${activeContent.name}`; const grid = document.getElementById('guess-cards-grid'); grid.innerHTML = '';
-            let pool = [...activeContent.items].sort(() => Math.random() - 0.5); if(pool.length > 24) pool = pool.slice(0, 24); else pool = pool.sort((a,b) => a.name.localeCompare(b.name));
-            pool.forEach(item => { const card = document.createElement('div'); card.className = 'guess-card'; let visualHTML = item.src ? `<img src="${item.src}">` : `<div class="preview-text-placeholder" style="height:95px; font-size:14px;">${item.name}</div>`; card.innerHTML = `${visualHTML}<div class="guess-card-name">${item.name}</div>`; card.onclick = function() { card.classList.toggle('eliminated'); }; grid.appendChild(card); });
+            document.getElementById('guess-game-title').innerText = `Indovina: ${activeContent.name}`;
+            const grid = document.getElementById('guess-cards-grid'); grid.innerHTML = '';
+            const sizeChoice = document.getElementById('tournament-size-select').value || 'all';
+            
+            let pool = [...activeContent.items].sort(() => Math.random() - 0.5);
+            
+            // Se non scelgono di vedere tutto, taglia l'array alla dimensione voluta
+            if(sizeChoice !== 'all') {
+                pool = pool.slice(0, parseInt(sizeChoice));
+            } else {
+                // Se vedono tutto, ordiniamo alfabeticamente per facilitare la ricerca visiva degli amici
+                pool = pool.sort((a,b) => a.name.localeCompare(b.name));
+            }
+
+            pool.forEach(item => {
+                const card = document.createElement('div'); card.className = 'guess-card'; card.id = `guess-tile-${item.id}`;
+                let visualHTML = item.src ? `<img src="${item.src}">` : `<div class="preview-text-placeholder" style="height:95px; font-size:14px;">${item.name}</div>`;
+                card.innerHTML = `${visualHTML}<div class="guess-card-name">${item.name}</div>`;
+                card.onclick = function() { card.classList.toggle('eliminated'); };
+                grid.appendChild(card);
+            });
             switchScreen('guess-screen');
         }
 
-        /* --- ARENA TORNEO --- */
-        function setupMatch() { 
-            document.getElementById('vs-text-node').innerText = "VS";
-            document.getElementById('vs-text-node').style.color = "var(--accent-color)";
-
-            if (currentMatchIndex >= currentRound.length) { currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; } 
-            if (currentRound.length === 1) { registerHofWinner(currentRound[0].name, activeContent.name); showWinner(currentRound[0]); return; } 
-            if (currentMatchIndex === currentRound.length - 1) { nextRound.push(currentRound[currentMatchIndex]); currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; setupMatch(); return; } 
-            
-            let phaseLabel = `Turno ${roundCount}`; 
-            const remaining = currentRound.length;
-
-            if (remaining === 2) { phaseLabel = "🏆 FINALISSIMA 🏆"; } 
-            else if (remaining === 4) { phaseLabel = "🏁 Semifinale 🏁"; } 
-            else if (remaining === 8) { phaseLabel = "🎯 Quarti di Finale 🎯"; } 
-            else if (remaining === 16) { phaseLabel = "🎖️ Ottavi di Finale 🎖️"; } 
-            else if (remaining === 32) { phaseLabel = "⚔️ Sedicesimi di Finale ⚔️"; } 
-            else { phaseLabel = `Turno ${roundCount} — Elementi rimasti: ${remaining}`; }
-
-            document.getElementById('round-title').innerText = phaseLabel; 
-            renderCardData('left', currentRound[currentMatchIndex]); renderCardData('right', currentRound[currentMatchIndex + 1]); 
+        /* --- TIER LIST --- */
+        function renderTierRows() {
+            const container = document.getElementById('tier-rows-container'); const savedElementsMap = {};
+            currentTierStructure.forEach(t => { const existingZone = document.getElementById(`zone-tier-${t.id}`); if(existingZone) savedElementsMap[t.id] = Array.from(existingZone.children); });
+            container.innerHTML = '';
+            currentTierStructure.forEach((t, index) => {
+                const trow = document.createElement('div'); trow.className = 'tier-row'; trow.id = `tier-row-block-${t.id}`;
+                trow.innerHTML = `<div class="tier-label" style="background-color: ${t.color};">${t.label}</div><div class="tier-dropzone" id="zone-tier-${t.id}" ondragover="allowDrop(event)" ondrop="handleDrop(event, '${t.id}')" onclick="handleMobileZoneClick('${t.id}')"></div><div class="tier-controls"><button class="tier-ctrl-btn" onclick="moveTierRow(${index}, -1)">▲</button><button class="tier-ctrl-btn" onclick="moveTierRow(${index}, 1)">▼</button><button class="tier-ctrl-btn" style="background:#555;" onclick="openEditTierModal('${t.id}')">⚙️</button><button class="tier-ctrl-btn" style="background:var(--danger-color);" onclick="deleteTierRow('${t.id}')">✕</button></div>`;
+                container.appendChild(trow); if(savedElementsMap[t.id]) { const newZone = document.getElementById(`zone-tier-${t.id}`); savedElementsMap[t.id].forEach(child => newZone.appendChild(child)); }
+            });
         }
-        
+        function moveTierRow(currentIndex, direction) { let targetIndex = currentIndex + direction; if(targetIndex < 0 || targetIndex >= currentTierStructure.length) return; let temp = currentTierStructure[currentIndex]; currentTierStructure[currentIndex] = currentTierStructure[targetIndex]; currentTierStructure[targetIndex] = temp; renderTierRows(); }
+        function deleteTierRow(rowId) { const zone = document.getElementById(`zone-tier-${rowId}`); if(zone) { const children = Array.from(zone.children); const bench = document.getElementById('tier-bench-zone'); children.forEach(c => bench.appendChild(c)); } currentTierStructure = currentTierStructure.filter(t => t.id !== rowId); renderTierRows(); }
+        function openEditTierModal(rowId) { targetEditingRowId = rowId; const t = currentTierStructure.find(row => row.id === rowId); if(!t) return; document.getElementById('modal-tier-title').innerText = "Modifica Livello"; document.getElementById('modal-tier-name-input').value = t.label; document.getElementById('modal-tier-color-input').value = t.color; document.getElementById('modal-tier-save-btn').onclick = saveEditTierChanges; document.getElementById('tier-modal').classList.remove('hidden'); }
+        function saveEditTierChanges() { const newName = document.getElementById('modal-tier-name-input').value.trim(); const newColor = document.getElementById('modal-tier-color-input').value; if(!newName) { alert("Dai un nome al livello!"); return; } const t = currentTierStructure.find(row => row.id === targetEditingRowId); if(t) { t.label = newName; t.color = newColor; } closeTierModal(); renderTierRows(); }
+        function openAddTierModal() { targetEditingRowId = null; document.getElementById('modal-tier-title').innerText = "Aggiungi Nuovo Livello (Tier)"; document.getElementById('modal-tier-name-input').value = ''; document.getElementById('modal-tier-color-input').value = '#6200ee'; document.getElementById('modal-tier-save-btn').onclick = saveNewTierRow; document.getElementById('tier-modal').classList.remove('hidden'); }
+        function saveNewTierRow() { const newName = document.getElementById('modal-tier-name-input').value.trim(); const newColor = document.getElementById('modal-tier-color-input').value; if(!newName) { alert("Inserisci un nome!"); return; } currentTierStructure.push({ id: 'row_' + Math.random().toString(36).substr(2, 5), label: newName, color: newColor }); closeTierModal(); renderTierRows(); }
+        function closeTierModal() { document.getElementById('tier-modal').classList.add('hidden'); }
+
+        /* --- ARENA TORNEO BASE --- */
+        function setupMatch() { document.getElementById('vs-text-node').innerText = "VS"; document.getElementById('vs-text-node').style.color = "var(--accent-color)"; if (currentMatchIndex >= currentRound.length) { currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; } if (currentRound.length === 1) { registerHofWinner(currentRound[0].name, activeContent.name); showWinner(currentRound[0]); return; } if (currentMatchIndex === currentRound.length - 1) { nextRound.push(currentRound[currentMatchIndex]); currentRound = [...nextRound]; nextRound = []; currentMatchIndex = 0; roundCount++; setupMatch(); return; } let phaseLabel = `Turno ${roundCount}`; const remaining = currentRound.length; if (remaining === 2) phaseLabel = "🏆 FINALISSIMA 🏆"; else if (remaining === 4) phaseLabel = "🏁 Semifinale 🏁"; else if (remaining === 8) phaseLabel = "🎯 Quarti di Finale 🎯"; else if (remaining === 16) phaseLabel = "🎖️ Ottavi di Finale 🎖️"; else if (remaining === 32) phaseLabel = "⚔️ Sedicesimi di Finale ⚔️"; else phaseLabel = `Turno ${roundCount} — Rimasti: ${remaining}`; document.getElementById('round-title').innerText = phaseLabel; renderCardData('left', currentRound[currentMatchIndex]); renderCardData('right', currentRound[currentMatchIndex + 1]); }
         function renderCardData(side, item) { const ie = document.getElementById(`img-${side}`); const pe = document.getElementById(`placeholder-${side}`); const ne = document.getElementById(`name-${side}`); ne.innerText = item.name; if(item.src) { ie.src = item.src; ie.classList.remove('hidden'); pe.classList.add('hidden'); } else { ie.src = ''; ie.classList.add('hidden'); pe.innerText = item.name; pe.classList.remove('hidden'); } }
         function selectWinner(side) { const w = currentRound[currentMatchIndex + side]; nextRound.push(w); currentMatchIndex += 2; setupMatch(); }
-        
-        /* --- SPAREGGIO CASUALE --- */
-        function executeRandomTiebreaker() {
-            const vsNode = document.getElementById('vs-text-node'); vsNode.innerText = "🎲 ..."; vsNode.style.color = "var(--warning-color)";
-            setTimeout(() => {
-                const coinFlip = Math.random() < 0.5; 
-                if (coinFlip) { vsNode.innerText = "⬅️ FRECCIA"; vsNode.style.color = "var(--secondary-color)"; } 
-                else { vsNode.innerText = "FRECCIA ➡️"; vsNode.style.color = "var(--secondary-color)"; }
-            }, 400);
-        }
-
-        /* --- INTERRUZIONE E ABBANDONO UNIVERSALE --- */
-        function quitActiveGameProcess() {
-            if (confirm("Vuoi davvero abbandonare la partita in corso e tornare alla Dashboard principale?")) {
-                clearInterval(quizTimerInterval); activeContent = null; switchScreen('dashboard-screen'); renderDashboard();
-            }
-        }
-
+        function executeRandomTiebreaker() { const vsNode = document.getElementById('vs-text-node'); vsNode.innerText = "🎲 ..."; vsNode.style.color = "var(--warning-color)"; setTimeout(() => { const coinFlip = Math.random() < 0.5; if (coinFlip) { vsNode.innerText = "⬅️ FRECCIA"; vsNode.style.color = "var(--secondary-color)"; } else { vsNode.innerText = "FRECCIA ➡️"; vsNode.style.color = "var(--secondary-color)"; } }, 400); }
+        function quitActiveGameProcess() { if (confirm("Vuoi abbandonare la partita in corso?")) { clearInterval(quizTimerInterval); activeContent = null; switchScreen('dashboard-screen'); renderDashboard(); } }
         function showWinner(w) { document.getElementById('end-screen-main-title').innerText = "🏆 Vincitore Assoluto! 🏆"; switchScreen('winner-screen'); document.getElementById('winner-name').innerText = w.name; const wi = document.getElementById('winner-img'); const wp = document.getElementById('winner-placeholder'); if(w.src) { wi.src = w.src; wi.classList.remove('hidden'); wp.classList.add('hidden'); } else { wi.src = ''; wi.classList.add('hidden'); wp.innerText = w.name; wp.classList.remove('hidden'); } }
 
-        /* --- UTILS --- */
+        /* --- SYSTEM UTILS --- */
         function cancelSetup() { editingContentId = null; clearSetupFields(); switchScreen('dashboard-screen'); renderDashboard(); }
         function toggleArchiveStatus(id, shouldArchive) { const index = database.findIndex(d => d.id === id); if(index !== -1) { database[index].archived = shouldArchive; saveToLocalStorage(); renderDashboard(); } }
         function toggleArchiveView() { const as = document.getElementById('archive-section'); const tb = document.getElementById('toggle-archive-btn'); isArchiveVisible = !isArchiveVisible; if(isArchiveVisible) { as.classList.remove('hidden'); tb.innerText = "📁 Nascondi Archivio"; } else { as.classList.add('hidden'); tb.innerText = "📁 Mostra Archivio"; } }
@@ -863,21 +915,15 @@
         function renderItemPreview(item) { const container = document.getElementById('item-list-container'); const div = document.createElement('div'); div.className = 'item-preview'; div.id = item.id; let mHTML = item.src ? `<img src="${item.src}">` : `<div class="preview-text-placeholder" id="txt-preview-${item.id}">${item.name}</div>`; div.innerHTML = `<div>${mHTML}<input type="text" value="${item.name}" oninput="updateItemName('${item.id}', this.value)"></div><button class="btn-remove-item" onclick="removeItem('${item.id}')">Rimuovi ✕</button>`; container.appendChild(div); }
         function removeItem(id) { currentItems = currentItems.filter(i => i.id !== id); const el = document.getElementById(id); if(el) el.remove(); }
         function updateItemName(id, value) { const item = currentItems.find(i => i.id === id); if(item) { item.name = value; const pt = document.getElementById(`txt-preview-${id}`); if(pt) pt.innerText = value; } }
-        function clearSetupFields() { document.getElementById('tournament-name').value = ''; document.getElementById('item-list-container').innerHTML = ''; document.getElementById('quiz-questions-container').innerHTML = ''; document.getElementById('cover-preview-box').innerHTML = currentFormType === 'quiz' ? '📝' : '🏆'; document.getElementById('cover-text-input').value = ''; document.getElementById('quiz-score-sub').classList.add('hidden'); document.getElementById('quiz-review-box').classList.add('hidden'); document.getElementById('quiz-timer-toggle').checked = false; document.getElementById('quiz-timer-seconds-row').classList.add('hidden'); currentItems = []; currentQuestions = []; tempCoverSrc = ''; tempItemSrc = ''; }
+        function clearSetupFields() { document.getElementById('tournament-name').value = ''; document.getElementById('item-list-container').innerHTML = ''; document.getElementById('quiz-questions-container').innerHTML = ''; document.getElementById('cover-preview-box').innerHTML = '🏆'; document.getElementById('cover-text-input').value = ''; document.getElementById('quiz-score-sub').classList.add('hidden'); document.getElementById('quiz-review-box').classList.add('hidden'); document.getElementById('quiz-timer-toggle').checked = false; document.getElementById('quiz-timer-seconds-row').classList.add('hidden'); document.getElementById('quiz-heart-toggle').checked = false; document.getElementById('quiz-heart-number-row').classList.add('hidden'); currentItems = []; currentQuestions = []; tempCoverSrc = ''; tempItemSrc = ''; }
         function deleteContent(id) { if(confirm("Eliminare definitivamente?")) { database = database.filter(d => d.id !== id); saveToLocalStorage(); renderDashboard(); } }
         function exportContent(id) { const item = database.find(d => d.id === id); if(!item) return; const blob = new Blob([JSON.stringify(item)], { type: "application/json" }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${item.name.toLowerCase().replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-        function saveToLocalStorage() { try { localStorage.setItem('app_database_items', JSON.stringify(database)); return true; } catch(e) { alert("Spazio browser esaurito!"); return false; } }
-        
+        function saveToLocalStorage() { try { localStorage.setItem('app_database_items', JSON.stringify(database)); return true; } catch(e) { alert("Spazio esausto!"); return false; } }
         function setupEventListeners() {
             document.getElementById('cover-input').addEventListener('change', function(e) { if(e.target.files[0]) { compressImage(e.target.files[0], 200, 0.6, function(base64) { tempCoverSrc = base64; document.getElementById('cover-preview-box').innerHTML = `<img src="${base64}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`; document.getElementById('cover-text-input').value = ''; }); } });
             document.getElementById('bulk-file-input').addEventListener('change', function(e) { const files = e.target.files; for(let i=0; i<files.length; i++) { compressImage(files[i], 500, 0.6, function(base64) { const clean = files[i].name.split('.').slice(0, -1).join('.'); const item = { id: 'item_' + Math.random().toString(36).substr(2, 9), name: clean, src: base64 }; currentItems.push(item); renderItemPreview(item); }); } });
-            document.getElementById('import-input').addEventListener('change', function(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(event) { try { const imported = JSON.parse(event.target.result); if(imported.name && (Array.isArray(imported.items) || Array.isArray(imported.questions))) { imported.id = 'imported_' + Math.random().toString(36).substr(2, 9); imported.archived = false; database.push(imported); saveToLocalStorage(); renderDashboard(); alert("Importato correttamente!"); } else { alert("File invalido."); } } catch(err) { alert("Errore file JSON."); } }; reader.readAsText(file); });
-            
-            // Ripulisce i puntatori click se si tocca lo sfondo vuoto
-            document.onclick = function() { 
-                if(mobileSelectedItemId) { const el = document.getElementById(`drag-${mobileSelectedItemId}`); if(el) el.style.border = "1px solid #444"; mobileSelectedItemId = null; } 
-                if(mobileSelectedDashboardCardId) { const card = document.getElementById(`dashcard-${mobileSelectedDashboardCardId}`); if(card) card.style.borderColor = "transparent"; mobileSelectedDashboardCardId = null; }
-            };
+            document.getElementById('import-input').addEventListener('change', function(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(event) { try { const imported = JSON.parse(event.target.result); if(imported.name && (Array.isArray(imported.items) || Array.isArray(imported.questions))) { imported.id = 'imported_' + Math.random().toString(36).substr(2, 9); imported.archived = false; database.push(imported); saveToLocalStorage(); renderDashboard(); alert("Caricato correttamente!"); } else { alert("File invalido."); } } catch(err) { alert("Errore file JSON."); } }; reader.readAsText(file); });
+            document.onclick = function() { if(mobileSelectedItemId) { const el = document.getElementById(`drag-${mobileSelectedItemId}`); if(el) el.style.border = "1px solid #444"; mobileSelectedItemId = null; } if(mobileSelectedDashboardCardId) { const card = document.getElementById(`dashcard-${mobileSelectedDashboardCardId}`); if(card) card.style.borderColor = "transparent"; mobileSelectedDashboardCardId = null; } };
         }
         function setupItemFileListener() { document.getElementById('item-file-input').addEventListener('change', function(e) { if(e.target.files[0]) { compressImage(e.target.files[0], 500, 0.6, function(base64) { tempItemSrc = base64; document.getElementById('item-file-label').innerHTML = `<input type="file" id="item-file-input" accept="image/*"> Caricata ✓`; document.getElementById('item-file-label').style.background = "var(--secondary-color)"; setupItemFileListener(); }); } }); }
         function compressImage(file, maxSize, quality, callback) { const reader = new FileReader(); reader.onload = function(e) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); let w = img.width; let h = img.height; if (w > h) { if (w > maxSize) { h *= maxSize / w; w = maxSize; } } else { if (h > maxSize) { w *= maxSize / h; h = maxSize; } } canvas.width = w; canvas.height = h; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h); callback(canvas.toDataURL('image/jpeg', quality)); }; img.src = e.target.result; }; reader.readAsDataURL(file); }
